@@ -1,0 +1,16 @@
+# Integration with Issue Tracker
+#
+# (note that '\' need to be escaped).
+
+[issuetracker "Krafton JIRA Rule META"]
+  regex = "META-(\\d+)"
+  url = "https://jira.krafton.com/browse/META-$1"
+
+[issuetracker "Krafton JIRA Rule ASKSBX"]
+  regex = "ASKSBX-(\\d+)"
+  url = "https://jira.krafton.com/browse/ASKSBX-$1"
+
+[issuetracker "Krafton GitHub Enterprise Rule"]
+  regex = "#(\\d+)"
+  url = "https://github.com/krafton-hq/red-fox/issues/$1"
+
