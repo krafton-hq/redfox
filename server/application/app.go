@@ -1,7 +1,6 @@
 package application
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
@@ -12,7 +11,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	log_helper "github.com/krafton-hq/golib/log-helper"
 	"github.com/krafton-hq/red-fox/sdk/app_life"
@@ -31,23 +29,10 @@ func NewApplication(config *configs.RedFoxConfig) *Application {
 	return &Application{config: config}
 }
 
-func GetStreamServerInterceptors() []grpc.StreamServerInterceptor {
-	list := []grpc.StreamServerInterceptor{
-		grpc_zap.StreamServerInterceptor(zap.L()),
-	}
-
-	if ce := zap.L().Check(zap.DebugLevel, "Lorem Ipsum"); ce != nil {
-		list = append(list, grpc_zap.PayloadStreamServerInterceptor(zap.L(), func(ctx context.Context, fullMethodName string, servingObject interface{}) bool {
-			return true
-		}))
-	}
-	return list
-}
-
 func (a *Application) Init() {
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(log_helper.GetUnaryServerInterceptors()...)),
-		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(GetStreamServerInterceptors()...)))
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(log_helper.GetStreamServerInterceptors()...)))
 	reflection.Register(grpcServer)
 
 	appLifecycleController := app_lifecycle_con.NewAppLifecycle()
