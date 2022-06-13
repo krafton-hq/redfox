@@ -1,0 +1,3 @@
+listeners:
+  grpcPort: 8081
+  restPort: 8080

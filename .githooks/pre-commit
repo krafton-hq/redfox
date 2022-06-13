@@ -1,0 +1,16 @@
+#!/bin/sh
+set -euxo pipefail
+
+export PATH=$PATH:$(go env GOPATH)/bin:$(go env GOROOT)/bin
+
+result=$(gofmt -s -l -w ./ | wc -c)
+if [ $result -ne 0 ]; then
+    echo "Automatically formatted unformatted files. Please stage changes and commit again."
+    exit 1
+fi
+
+result2=$(goimports -l -w . | wc -c)
+if [ $result2 -ne 0 ]; then
+    echo "Automatically reordered go imports. Please stage changes and commit again."
+    exit 1
+fi

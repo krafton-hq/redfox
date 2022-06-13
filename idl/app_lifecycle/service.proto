@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package app_lifecycle;
+
+import "idl_common/code.proto";
+import "idl_common/message.proto";
+
+option go_package = "github.com/krafton-hq/red-fox/sdk/app_life";
+
+service ApplicationLifecycle {
+  rpc Version(idl_common.CommonReq) returns (idl_common.CommonRes) {}
+  rpc Livez(idl_common.CommonReq) returns (idl_common.CommonRes) {}
+  rpc Readyz(idl_common.CommonReq) returns (idl_common.CommonRes) {}
+}

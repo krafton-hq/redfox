@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package config;
+
+option go_package = "github.com/krafton-hq/red-fox/server/application/configs";
+
+message RedFoxConfig {
+  Listeners listeners = 1;
+}
+
+message Listeners {
+  int32 grpcPort = 1;
+  int32 restPort = 2;
+}

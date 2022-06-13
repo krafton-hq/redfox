@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package idl_common;
+
+import "idl_common/code.proto";
+
+option go_package = "github.com/krafton-hq/red-fox/sdk/idl_common";
+
+message CommonReq {
+}
+
+message CommonRes {
+  ResultCode Status = 1;
+  string Message = 2;
+}

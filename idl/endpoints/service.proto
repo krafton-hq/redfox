@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package endpoints;
+
+import "idl_common/code.proto";
+import "idl_common/message.proto";
+
+option go_package = "github.com/krafton-hq/red-fox/sdk/endpoints";
