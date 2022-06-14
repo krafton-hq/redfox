@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package redfox.api.documents;
+
+import "idl_common/types.proto";
+
+option go_package = "github.com/krafton-hq/red-fox/apis/documents";
+
+service NatIpServer {
+  rpc GetNatIp(idl_common.SingleObjectReq) returns (GetNatIpRes) {}
+  rpc ListNatIps(idl_common.ListObjectReq) returns (ListNatIpsRes) {}
+  rpc CreateNatIp(DesiredNatIpReq) returns (idl_common.CommonRes) {}
+  rpc UpdateNatIp(DesiredNatIpReq) returns (idl_common.CommonRes) {}
+  rpc DeleteNatIp(idl_common.SingleObjectReq) returns (idl_common.CommonRes) {}
+}
+
+message NatIp {
+  string apiVersion = 1;
+  string kind = 2;
+  idl_common.ObjectMeta metadata = 3;
+  NatIpSpec spec = 4;
+}
+
+message NatIpSpec {
+  IpType type = 1;
+  repeated string cidrs = 2;
+}
+
+enum IpType {
+  Ipv4 = 0;
+  Ipv6 = 1;
+}
+
+message GetNatIpRes {
+  idl_common.CommonRes commonRes = 1;
+  NatIp natIp = 2;
+}
+
+message ListNatIpsRes {
+  idl_common.CommonRes commonRes = 1;
+  repeated NatIp natIps = 2;
+}
+
+message DesiredNatIpReq {
+  idl_common.CommonReq commonRes = 1;
+  NatIp natIp = 2;
+}

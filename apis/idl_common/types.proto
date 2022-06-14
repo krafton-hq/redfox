@@ -1,8 +1,31 @@
 syntax = "proto3";
 
-package idl_common;
+package redfox.api.idl_common;
 
-option go_package = "github.com/krafton-hq/red-fox/sdk/idl_common";
+option go_package = "github.com/krafton-hq/red-fox/apis/idl_common";
+
+message CommonReq {
+}
+
+message CommonRes {
+  ResultCode Status = 1;
+  string Message = 2;
+}
+
+message ObjectMeta {
+  string name = 1;
+  repeated string labels = 2;
+  string namespace = 3;
+}
+
+message SingleObjectReq {
+  string name = 1;
+}
+
+message ListObjectReq {
+  string namespace = 1;
+  repeated string labelSelectors = 2;
+}
 
 enum ResultCode {
   SUCCESS = 0;

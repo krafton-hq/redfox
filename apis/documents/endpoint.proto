@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package redfox.api.documents;
+
+import "idl_common/types.proto";
+
+option go_package = "github.com/krafton-hq/red-fox/apis/documents";
+
+service EndpointServer {
+  rpc GetEndpoint(idl_common.SingleObjectReq) returns (GetEndpointRes) {}
+  rpc ListEndpoints(idl_common.ListObjectReq) returns (ListEndpointsRes) {}
+  rpc CreateEndpoint(DesiredEndpointReq) returns (idl_common.CommonRes) {}
+  rpc UpdateEndpoint(DesiredEndpointReq) returns (idl_common.CommonRes) {}
+  rpc DeleteEndpoint(idl_common.SingleObjectReq) returns (idl_common.CommonRes) {}
+}
+
+message Endpoint {
+  string apiVersion = 1;
+  string kind = 2;
+  idl_common.ObjectMeta metadata = 3;
+  EndpointSpec spec = 4;
+}
+
+message EndpointSpec {
+  repeated EndpointAddress addresses = 1;
+  repeated EndpointPort ports = 2;
+}
+
+message EndpointAddress {
+  string url = 1;
+}
+
+message EndpointPort {
+  string name = 1;
+  int32 port = 2;
+  string protocol = 3;
+}
+
+message GetEndpointRes {
+  idl_common.CommonRes commonRes = 1;
+  Endpoint endpoint = 2;
+}
+
+message ListEndpointsRes {
+  idl_common.CommonRes commonRes = 1;
+  repeated Endpoint endpoints = 2;
+}
+
+message DesiredEndpointReq {
+  idl_common.CommonReq commonRes = 1;
+  Endpoint endpoint = 2;
+}
