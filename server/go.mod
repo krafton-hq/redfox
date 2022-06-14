@@ -36,10 +36,10 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/krafton-hq/golib v0.0.2
-	github.com/krafton-hq/red-fox/sdk v0.0.0
+	github.com/krafton-hq/red-fox/apis v0.0.0
 	go.uber.org/zap v1.21.0
 	google.golang.org/grpc v1.47.0
 	sigs.k8s.io/yaml v1.3.0
 )
 
-replace github.com/krafton-hq/red-fox/sdk => ../sdk
+replace github.com/krafton-hq/red-fox/apis => ../apis

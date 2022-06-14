@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/krafton-hq/red-fox/sdk/idl_common"
+	"github.com/krafton-hq/red-fox/apis/idl_common"
 )
 
 var CommonReq = &idl_common.CommonReq{}

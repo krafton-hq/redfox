@@ -1,4 +1,4 @@
-module github.com/krafton-hq/red-fox/sdk
+module github.com/krafton-hq/red-fox/apis
 
 go 1.18
 

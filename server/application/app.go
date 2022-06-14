@@ -13,7 +13,6 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	log_helper "github.com/krafton-hq/golib/log-helper"
-	"github.com/krafton-hq/red-fox/sdk/app_life"
 	"github.com/krafton-hq/red-fox/server/application/configs"
 	"github.com/krafton-hq/red-fox/server/controllers/app_lifecycle_con"
 	"go.uber.org/zap"

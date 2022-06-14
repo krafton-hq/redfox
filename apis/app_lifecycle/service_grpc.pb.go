@@ -2,14 +2,13 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.19.4
-// source: app_life/service.proto
+// source: app_lifecycle/service.proto
 
 package app_life
 
 import (
 	context "context"
-
-	idl_common "github.com/krafton-hq/red-fox/sdk/idl_common"
+	idl_common "github.com/krafton-hq/red-fox/apis/idl_common"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -39,7 +38,7 @@ func NewApplicationLifecycleClient(cc grpc.ClientConnInterface) ApplicationLifec
 
 func (c *applicationLifecycleClient) Version(ctx context.Context, in *idl_common.CommonReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error) {
 	out := new(idl_common.CommonRes)
-	err := c.cc.Invoke(ctx, "/endpoints.ApplicationLifecycle/Version", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/redfox.api.app_lifecycle.ApplicationLifecycle/Version", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +47,7 @@ func (c *applicationLifecycleClient) Version(ctx context.Context, in *idl_common
 
 func (c *applicationLifecycleClient) Livez(ctx context.Context, in *idl_common.CommonReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error) {
 	out := new(idl_common.CommonRes)
-	err := c.cc.Invoke(ctx, "/endpoints.ApplicationLifecycle/Livez", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/redfox.api.app_lifecycle.ApplicationLifecycle/Livez", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +56,7 @@ func (c *applicationLifecycleClient) Livez(ctx context.Context, in *idl_common.C
 
 func (c *applicationLifecycleClient) Readyz(ctx context.Context, in *idl_common.CommonReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error) {
 	out := new(idl_common.CommonRes)
-	err := c.cc.Invoke(ctx, "/endpoints.ApplicationLifecycle/Readyz", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/redfox.api.app_lifecycle.ApplicationLifecycle/Readyz", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +109,7 @@ func _ApplicationLifecycle_Version_Handler(srv interface{}, ctx context.Context,
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.ApplicationLifecycle/Version",
+		FullMethod: "/redfox.api.app_lifecycle.ApplicationLifecycle/Version",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApplicationLifecycleServer).Version(ctx, req.(*idl_common.CommonReq))
@@ -128,7 +127,7 @@ func _ApplicationLifecycle_Livez_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.ApplicationLifecycle/Livez",
+		FullMethod: "/redfox.api.app_lifecycle.ApplicationLifecycle/Livez",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApplicationLifecycleServer).Livez(ctx, req.(*idl_common.CommonReq))
@@ -146,7 +145,7 @@ func _ApplicationLifecycle_Readyz_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.ApplicationLifecycle/Readyz",
+		FullMethod: "/redfox.api.app_lifecycle.ApplicationLifecycle/Readyz",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApplicationLifecycleServer).Readyz(ctx, req.(*idl_common.CommonReq))
@@ -158,7 +157,7 @@ func _ApplicationLifecycle_Readyz_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ApplicationLifecycle_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "endpoints.ApplicationLifecycle",
+	ServiceName: "redfox.api.app_lifecycle.ApplicationLifecycle",
 	HandlerType: (*ApplicationLifecycleServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -175,5 +174,5 @@ var ApplicationLifecycle_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "app_life/service.proto",
+	Metadata: "app_lifecycle/service.proto",
 }

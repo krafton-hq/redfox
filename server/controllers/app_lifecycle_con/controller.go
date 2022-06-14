@@ -3,8 +3,7 @@ package app_lifecycle_con
 import (
 	"context"
 
-	"github.com/krafton-hq/red-fox/sdk/app_life"
-	"github.com/krafton-hq/red-fox/sdk/idl_common"
+	"github.com/krafton-hq/red-fox/apis/idl_common"
 )
 
 type AppLifecycle struct {
