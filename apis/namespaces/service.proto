@@ -15,6 +15,17 @@ service NamespaceServer {
 
 message Namespace {
   idl_common.ObjectMeta metadata = 1;
+  NamespaceSpec spec = 2;
+}
+
+message NamespaceSpec {
+  repeated KindSpec kinds = 1;
+}
+
+message KindSpec {
+  string apiVersion = 1;
+  string kind = 2;
+  bool enabled = 3;
 }
 
 message GetNamespaceRes {

@@ -14,7 +14,7 @@ message CommonRes {
 
 message ObjectMeta {
   string name = 1;
-  repeated string labels = 2;
+  map<string, string> labels = 2;
   string namespace = 3;
 }
 
@@ -24,7 +24,7 @@ message SingleObjectReq {
 
 message ListObjectReq {
   string namespace = 1;
-  repeated string labelSelectors = 2;
+  map<string, string> labelSelectors = 2;
 }
 
 enum ResultCode {
