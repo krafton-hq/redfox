@@ -4,7 +4,7 @@
 // - protoc             v3.19.4
 // source: app_lifecycle/service.proto
 
-package app_life
+package app_lifecycle
 
 import (
 	context "context"

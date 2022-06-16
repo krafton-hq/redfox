@@ -11,10 +11,19 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	log_helper "github.com/krafton-hq/golib/log-helper"
+	"github.com/krafton-hq/red-fox/apis/app_lifecycle"
+	"github.com/krafton-hq/red-fox/apis/documents"
+	"github.com/krafton-hq/red-fox/apis/namespaces"
 	"github.com/krafton-hq/red-fox/server/application/configs"
 	"github.com/krafton-hq/red-fox/server/controllers/app_lifecycle_con"
+	"github.com/krafton-hq/red-fox/server/controllers/document_con"
+	"github.com/krafton-hq/red-fox/server/controllers/namespace_con"
+	"github.com/krafton-hq/red-fox/server/repositories/apiobject_repository"
+	"github.com/krafton-hq/red-fox/server/services/namespace_service"
+	"github.com/krafton-hq/red-fox/server/services/natip_service"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -22,6 +31,12 @@ import (
 
 type Application struct {
 	config *configs.RedFoxConfig
+
+	grpcServer *grpc.Server
+
+	nsController    *namespace_con.Controller
+	natIpController *document_con.NatIpController
+	appController   *app_lifecycle_con.GrpcController
 }
 
 func NewApplication(config *configs.RedFoxConfig) *Application {
@@ -29,13 +44,28 @@ func NewApplication(config *configs.RedFoxConfig) *Application {
 }
 
 func (a *Application) Init() {
+	a.initInternal()
+
 	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(log_helper.GetUnaryServerInterceptors()...)),
-		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(log_helper.GetStreamServerInterceptors()...)))
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			append(log_helper.GetUnaryServerInterceptors(),
+				grpc_recovery.UnaryServerInterceptor(),
+			)...,
+		)),
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			append(log_helper.GetStreamServerInterceptors(),
+				grpc_recovery.StreamServerInterceptor(),
+			)...,
+		)))
 	reflection.Register(grpcServer)
 
-	appLifecycleController := app_lifecycle_con.NewAppLifecycle()
-	app_life.RegisterApplicationLifecycleServer(grpcServer, appLifecycleController)
+	app_lifecycle.RegisterApplicationLifecycleServer(grpcServer, a.appController)
+	namespaces.RegisterNamespaceServerServer(grpcServer, a.nsController)
+	documents.RegisterNatIpServerServer(grpcServer, a.natIpController)
+
+	for name := range grpcServer.GetServiceInfo() {
+		zap.S().Infow("Registered gRpc Service", "name", name)
+	}
 
 	wrappedGrpc := grpcweb.WrapServer(grpcServer)
 	grpcWebHandler := http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
@@ -54,7 +84,7 @@ func (a *Application) Init() {
 	httpServer.Group("/grpc_web", adaptor.HTTPHandlerFunc(grpcWebHandler))
 
 	appLifecycle := httpServer.Group("/api/v1/app")
-	app_lifecycle_con.NewAppLifecycleHttp(appLifecycleController).Register(appLifecycle)
+	app_lifecycle_con.NewAppLifecycleHttp(a.appController).Register(appLifecycle)
 
 	go func(port int32) {
 		listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
@@ -76,4 +106,38 @@ func (a *Application) Init() {
 		}
 	}(a.config.Listeners.RestPort)
 
+}
+
+func (a *Application) initInternal() error {
+	rawNsRepo := apiobject_repository.NewInMemoryNamespacedRepository[*namespaces.Namespace](&namespaces.GroupVersionKind{
+		Group:   "core",
+		Version: "v1",
+		Kind:    "Namespace",
+		Enabled: true,
+	})
+	nsRepo := apiobject_repository.NewSimpleClusterRepository[*namespaces.Namespace](rawNsRepo)
+
+	natIpRepo := apiobject_repository.NewInMemoryNamespacedRepository[*documents.NatIp](&namespaces.GroupVersionKind{
+		Group:   "red-fox.sbx-central.io",
+		Version: "v1alpha1",
+		Kind:    "NatIp",
+		Enabled: true,
+	})
+
+	endpointRepo := apiobject_repository.NewInMemoryNamespacedRepository[*documents.Endpoint](&namespaces.GroupVersionKind{
+		Group:   "red-fox.sbx-central.io",
+		Version: "v1alpha1",
+		Kind:    "Endpoint",
+		Enabled: true,
+	})
+	var nsRepos = []apiobject_repository.NamespacedRepositoryMetadata{natIpRepo, endpointRepo}
+
+	natIpService := natip_service.NewService(natIpRepo)
+	a.natIpController = document_con.NewNatIpDocController(natIpService)
+
+	nsService := namespace_service.NewService(nsRepo, nsRepos)
+	a.nsController = namespace_con.NewController(nsService)
+
+	a.appController = app_lifecycle_con.NewAppLifecycle()
+	return nil
 }

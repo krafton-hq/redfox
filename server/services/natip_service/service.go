@@ -1,116 +1,40 @@
 package natip_service
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/krafton-hq/red-fox/apis/documents"
-	"github.com/krafton-hq/red-fox/apis/idl_common"
+	"github.com/krafton-hq/red-fox/server/repositories/apiobject_repository"
 )
 
 type Service struct {
-	local map[string]map[string]*documents.NatIp
+	repository apiobject_repository.NamespacedRepository[*documents.NatIp]
 }
 
-func (s *Service) Get(namespace string, name string) (*documents.NatIp, error) {
-	ns, exist := s.local[namespace]
-	if !exist {
-		return nil, fmt.Errorf("namespace not eixst")
-	}
-
-	if nat, exist := ns[name]; exist {
-		return nat, nil
-	} else {
-		return nil, fmt.Errorf("natip not eixst")
-	}
+func NewService(repository apiobject_repository.NamespacedRepository[*documents.NatIp]) *Service {
+	return &Service{repository: repository}
 }
 
-func (s *Service) List(labelSelectors map[string]string) []*documents.NatIp {
-	var ret []*documents.NatIp
-	for _, namespaced := range s.local {
-		for _, natIp := range namespaced {
-			if containsLabels(natIp.Metadata, labelSelectors) {
-				ret = append(ret, natIp)
-			}
-		}
-	}
-	return ret
+func (s *Service) Get(ctx context.Context, namespace string, name string) (*documents.NatIp, error) {
+	return s.repository.Get(ctx, namespace, name)
 }
 
-func (s *Service) ListNamespaced(namespace string, labelSelectors map[string]string) ([]*documents.NatIp, error) {
-	ns, exist := s.local[namespace]
-	if !exist {
-		return nil, fmt.Errorf("namespace not eixst")
-	}
-
-	var ret []*documents.NatIp
-	for _, natIp := range ns {
-		if containsLabels(natIp.Metadata, labelSelectors) {
-			ret = append(ret, natIp)
-		}
-	}
-	return ret, nil
+func (s *Service) List(ctx context.Context, labelSelectors map[string]string) ([]*documents.NatIp, error) {
+	return s.repository.List(ctx, labelSelectors)
 }
 
-func containsLabels(metadata *idl_common.ObjectMeta, labels map[string]string) bool {
-	for key, value := range labels {
-		if !containsLabel(metadata, key, value) {
-			return false
-		}
-	}
-	return true
+func (s *Service) ListNamespaced(ctx context.Context, namespace string, labelSelectors map[string]string) ([]*documents.NatIp, error) {
+	return s.repository.ListNamespaced(ctx, namespace, labelSelectors)
 }
 
-func containsLabel(metadata *idl_common.ObjectMeta, tkey, tvalue string) bool {
-	for lkey, lvalue := range metadata.Labels {
-		if lkey == tkey {
-			if tvalue == "" {
-				return true
-			}
-			if lvalue == tvalue {
-				return true
-			}
-		}
-	}
-	return false
+func (s *Service) Create(ctx context.Context, natIp *documents.NatIp) error {
+	return s.repository.Create(ctx, natIp)
 }
 
-func (s *Service) Create(natIp *documents.NatIp) error {
-	ns, exist := s.local[natIp.Metadata.Namespace]
-	if !exist {
-		return fmt.Errorf("namespace not eixst")
-	}
-
-	name := natIp.Metadata.Name
-	if _, exist := ns[name]; exist {
-		return fmt.Errorf("natip alreay eixst")
-	}
-	ns[name] = natIp
-	return nil
+func (s *Service) Update(ctx context.Context, natIp *documents.NatIp) error {
+	return s.Update(ctx, natIp)
 }
 
-func (s *Service) Update(natIp *documents.NatIp) error {
-	ns, exist := s.local[natIp.Metadata.Namespace]
-	if !exist {
-		return fmt.Errorf("namespace not eixst")
-	}
-
-	name := natIp.Metadata.Name
-	if _, exist := ns[name]; !exist {
-		return fmt.Errorf("natip not eixst")
-	}
-	ns[name] = natIp
-	return nil
-}
-
-func (s *Service) Delete(namespace string, name string) error {
-	ns, exist := s.local[namespace]
-	if !exist {
-		return fmt.Errorf("namespace not eixst")
-	}
-
-	if _, exist := ns[name]; !exist {
-		return fmt.Errorf("natip not eixst")
-	}
-	delete(ns, name)
-	return nil
+func (s *Service) Delete(ctx context.Context, namespace string, name string) error {
+	return s.Delete(ctx, namespace, name)
 }

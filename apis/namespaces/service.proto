@@ -19,13 +19,14 @@ message Namespace {
 }
 
 message NamespaceSpec {
-  repeated KindSpec kinds = 1;
+  repeated GroupVersionKind apiObjects = 1;
 }
 
-message KindSpec {
-  string apiVersion = 1;
-  string kind = 2;
-  bool enabled = 3;
+message GroupVersionKind {
+  string group = 1;
+  string version = 2;
+  string kind = 3;
+  bool enabled = 4;
 }
 
 message GetNamespaceRes {

@@ -20,6 +20,7 @@ message ObjectMeta {
 
 message SingleObjectReq {
   string name = 1;
+  optional string namespace = 2;
 }
 
 message ListObjectReq {
