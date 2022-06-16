@@ -4,7 +4,7 @@ package redfox.api.app_lifecycle;
 
 import "idl_common/types.proto";
 
-option go_package = "github.com/krafton-hq/red-fox/apis/app_life";
+option go_package = "github.com/krafton-hq/red-fox/apis/app_lifecycle";
 
 service ApplicationLifecycle {
   rpc Version(idl_common.CommonReq) returns (idl_common.CommonRes) {}

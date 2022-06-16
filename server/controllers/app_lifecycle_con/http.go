@@ -6,10 +6,10 @@ import (
 )
 
 type AppLifecycleHttp struct {
-	server *AppLifecycle
+	server *GrpcController
 }
 
-func NewAppLifecycleHttp(server *AppLifecycle) *AppLifecycleHttp {
+func NewAppLifecycleHttp(server *GrpcController) *AppLifecycleHttp {
 	return &AppLifecycleHttp{server: server}
 }
 

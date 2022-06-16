@@ -7,26 +7,26 @@ import (
 	"github.com/krafton-hq/red-fox/apis/idl_common"
 )
 
-type DocumentController struct {
+type CustomDocumentController struct {
 	documents.UnimplementedCustomDocumentServerServer
 }
 
-func (c *DocumentController) GetCustomDocument(ctx context.Context, req *idl_common.SingleObjectReq) (*documents.GetCustomDocumentRes, error) {
+func (c *CustomDocumentController) GetCustomDocument(ctx context.Context, req *idl_common.SingleObjectReq) (*documents.GetCustomDocumentRes, error) {
 	panic("implement me")
 }
 
-func (c *DocumentController) ListCustomDocuments(ctx context.Context, req *idl_common.ListObjectReq) (*documents.ListCustomDocumentsRes, error) {
+func (c *CustomDocumentController) ListCustomDocuments(ctx context.Context, req *idl_common.ListObjectReq) (*documents.ListCustomDocumentsRes, error) {
 	panic("implement me")
 }
 
-func (c *DocumentController) CreateCustomDocument(ctx context.Context, req *documents.DesiredCustomDocumentReq) (*idl_common.CommonRes, error) {
+func (c *CustomDocumentController) CreateCustomDocument(ctx context.Context, req *documents.DesiredCustomDocumentReq) (*idl_common.CommonRes, error) {
 	panic("implement me")
 }
 
-func (c *DocumentController) UpdateCustomDocument(ctx context.Context, req *documents.DesiredCustomDocumentReq) (*idl_common.CommonRes, error) {
+func (c *CustomDocumentController) UpdateCustomDocument(ctx context.Context, req *documents.DesiredCustomDocumentReq) (*idl_common.CommonRes, error) {
 	panic("implement me")
 }
 
-func (c *DocumentController) DeleteCustomDocument(ctx context.Context, req *idl_common.SingleObjectReq) (*idl_common.CommonRes, error) {
+func (c *CustomDocumentController) DeleteCustomDocument(ctx context.Context, req *idl_common.SingleObjectReq) (*idl_common.CommonRes, error) {
 	panic("implement me")
 }
