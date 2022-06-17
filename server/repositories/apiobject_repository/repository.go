@@ -17,6 +17,8 @@ type ClusterRepository[T Metadatable] interface {
 	Create(ctx context.Context, obj T) error
 	Update(ctx context.Context, obj T) error
 	Delete(ctx context.Context, name string) error
+
+	Info() *namespaces.GroupVersionKind
 }
 
 type NamespacedRepository[T Metadatable] interface {

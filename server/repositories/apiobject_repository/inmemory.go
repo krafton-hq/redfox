@@ -146,3 +146,85 @@ func (r *InMemoryNamespacedRepository[T]) DisableNamespace(ctx context.Context, 
 func (r *InMemoryNamespacedRepository[T]) Info() *namespaces.GroupVersionKind {
 	return proto.Clone(r.gvk).(*namespaces.GroupVersionKind)
 }
+
+type InMemoryClusterRepository[T Metadatable] struct {
+	local map[string]T
+	gvk   *namespaces.GroupVersionKind
+
+	isNamespaced   bool
+	fixedNamespace string
+}
+
+func NewInMemoryClusterRepository[T Metadatable](gvk *namespaces.GroupVersionKind) *InMemoryClusterRepository[T] {
+	return &InMemoryClusterRepository[T]{
+		local:          map[string]T{},
+		gvk:            proto.Clone(gvk).(*namespaces.GroupVersionKind),
+		isNamespaced:   false,
+		fixedNamespace: defaultSystemNamespace,
+	}
+}
+
+func NewInMemoryClusterRepositoryWithFixedNamespace[T Metadatable](gvk *namespaces.GroupVersionKind, fixedNamespace string) *InMemoryClusterRepository[T] {
+	return &InMemoryClusterRepository[T]{
+		local:          map[string]T{},
+		gvk:            proto.Clone(gvk).(*namespaces.GroupVersionKind),
+		isNamespaced:   true,
+		fixedNamespace: fixedNamespace,
+	}
+}
+
+func (r *InMemoryClusterRepository[T]) Get(ctx context.Context, name string) (T, error) {
+	if obj, exist := r.local[name]; exist {
+		return obj, nil
+	}
+	var v T
+	return v, fmt.Errorf("cannot find '%s' object", name)
+}
+
+func (r *InMemoryClusterRepository[T]) List(ctx context.Context, labelSelectors map[string]string) ([]T, error) {
+	var ret []T
+	for _, object := range r.local {
+		if containsLabels(object.GetMetadata(), labelSelectors) {
+			ret = append(ret, object)
+		}
+	}
+	return ret, nil
+}
+
+func (r *InMemoryClusterRepository[T]) Create(ctx context.Context, obj T) error {
+	name := obj.GetMetadata().Name
+	if r.isNamespaced && r.fixedNamespace != obj.GetMetadata().Namespace {
+		return fmt.Errorf("invalid Namespaced Object ns: %s, name: %s", obj.GetMetadata().Namespace, name)
+	}
+
+	if _, exist := r.local[name]; exist {
+		return fmt.Errorf("object '%s' alreay eixst", name)
+	}
+	r.local[name] = obj
+	return nil
+}
+
+func (r *InMemoryClusterRepository[T]) Update(ctx context.Context, obj T) error {
+	name := obj.GetMetadata().Name
+	if r.isNamespaced && r.fixedNamespace != obj.GetMetadata().Namespace {
+		return fmt.Errorf("invalid Namespaced Object ns: %s, name: %s", obj.GetMetadata().Namespace, name)
+	}
+
+	if _, exist := r.local[name]; !exist {
+		return fmt.Errorf("object '%s' not eixst", name)
+	}
+	r.local[name] = obj
+	return nil
+}
+
+func (r *InMemoryClusterRepository[T]) Delete(ctx context.Context, name string) error {
+	if _, exist := r.local[name]; !exist {
+		return fmt.Errorf("object '%s' not eixst", name)
+	}
+	delete(r.local, name)
+	return nil
+}
+
+func (r *InMemoryClusterRepository[T]) Info() *namespaces.GroupVersionKind {
+	return proto.Clone(r.gvk).(*namespaces.GroupVersionKind)
+}
