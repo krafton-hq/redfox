@@ -21,6 +21,7 @@ import (
 	"github.com/krafton-hq/red-fox/server/controllers/app_lifecycle_con"
 	"github.com/krafton-hq/red-fox/server/controllers/document_con"
 	"github.com/krafton-hq/red-fox/server/controllers/namespace_con"
+	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
 	"github.com/krafton-hq/red-fox/server/repositories/apiobject_repository"
 	"github.com/krafton-hq/red-fox/server/services/namespace_service"
 	"github.com/krafton-hq/red-fox/server/services/natip_service"
@@ -109,27 +110,9 @@ func (a *Application) Init() {
 }
 
 func (a *Application) initInternal() error {
-	rawNsRepo := apiobject_repository.NewInMemoryNamespacedRepository[*namespaces.Namespace](&namespaces.GroupVersionKind{
-		Group:   "core",
-		Version: "v1",
-		Kind:    "Namespace",
-		Enabled: true,
-	})
-	nsRepo := apiobject_repository.NewSimpleClusterRepository[*namespaces.Namespace](rawNsRepo)
-
-	natIpRepo := apiobject_repository.NewInMemoryNamespacedRepository[*documents.NatIp](&namespaces.GroupVersionKind{
-		Group:   "red-fox.sbx-central.io",
-		Version: "v1alpha1",
-		Kind:    "NatIp",
-		Enabled: true,
-	})
-
-	endpointRepo := apiobject_repository.NewInMemoryNamespacedRepository[*documents.Endpoint](&namespaces.GroupVersionKind{
-		Group:   "red-fox.sbx-central.io",
-		Version: "v1alpha1",
-		Kind:    "Endpoint",
-		Enabled: true,
-	})
+	nsRepo := apiobject_repository.NewInMemoryClusterRepository[*namespaces.Namespace](domain_helper.NamespaceGvk, apiobject_repository.DefaultSystemNamespace)
+	natIpRepo := apiobject_repository.NewInmemoryNamespacedRepository[*documents.NatIp](domain_helper.NatIpGvk)
+	endpointRepo := apiobject_repository.NewInmemoryNamespacedRepository[*documents.Endpoint](domain_helper.EndpointGvk)
 	var nsRepos = []apiobject_repository.NamespacedRepositoryMetadata{natIpRepo, endpointRepo}
 
 	natIpService := natip_service.NewService(natIpRepo)

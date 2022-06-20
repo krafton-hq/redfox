@@ -14,8 +14,10 @@ service NamespaceServer {
 }
 
 message Namespace {
-  idl_common.ObjectMeta metadata = 1;
-  NamespaceSpec spec = 2;
+  string apiVersion = 1;
+  string kind = 2;
+  idl_common.ObjectMeta metadata = 3;
+  NamespaceSpec spec = 4;
 }
 
 message NamespaceSpec {
