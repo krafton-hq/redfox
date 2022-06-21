@@ -5,6 +5,7 @@ import (
 )
 
 type ClusterService[T any] interface {
+	Init(ctx context.Context) error
 	Get(ctx context.Context, name string) (T, error)
 	List(ctx context.Context, labelSelectors map[string]string) ([]T, error)
 	Create(ctx context.Context, obj T) error

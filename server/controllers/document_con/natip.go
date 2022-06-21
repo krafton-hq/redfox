@@ -24,7 +24,7 @@ func (c *NatIpController) GetNatIp(ctx context.Context, req *idl_common.SingleOb
 	if req.Name == "" {
 		return &documents.GetNatIpRes{CommonRes: utils.CommonResNotEmpty("name")}, nil
 	}
-	if req.Namespace == nil || *req.Namespace != "" {
+	if req.Namespace == nil || *req.Namespace == "" {
 		return &documents.GetNatIpRes{CommonRes: utils.CommonResNotEmpty("namespace")}, nil
 	}
 
@@ -34,7 +34,7 @@ func (c *NatIpController) GetNatIp(ctx context.Context, req *idl_common.SingleOb
 	}
 
 	return &documents.GetNatIpRes{
-		CommonRes: &idl_common.CommonRes{Message: "Get Namespace Success"},
+		CommonRes: &idl_common.CommonRes{Message: "Get NatIp Success"},
 		NatIp:     natIp,
 	}, nil
 }
@@ -73,7 +73,7 @@ func (c *NatIpController) CreateNatIp(ctx context.Context, req *documents.Desire
 		return utils.CommonResInternalError(err), nil
 	}
 
-	return &idl_common.CommonRes{Message: "Create Namespace Success"}, nil
+	return &idl_common.CommonRes{Message: "Create NatIp Success"}, nil
 }
 
 func (c *NatIpController) UpdateNatIp(ctx context.Context, req *documents.DesiredNatIpReq) (*idl_common.CommonRes, error) {
@@ -89,7 +89,7 @@ func (c *NatIpController) UpdateNatIp(ctx context.Context, req *documents.Desire
 		return utils.CommonResInternalError(err), nil
 	}
 
-	return &idl_common.CommonRes{Message: "Update Namespace Success"}, nil
+	return &idl_common.CommonRes{Message: "Update NatIp Success"}, nil
 }
 
 func (c *NatIpController) DeleteNatIp(ctx context.Context, req *idl_common.SingleObjectReq) (*idl_common.CommonRes, error) {
@@ -105,5 +105,5 @@ func (c *NatIpController) DeleteNatIp(ctx context.Context, req *idl_common.Singl
 		return utils.CommonResInternalError(err), nil
 	}
 
-	return &idl_common.CommonRes{Message: "Delete Namespace Success"}, nil
+	return &idl_common.CommonRes{Message: "Delete NatIp Success"}, nil
 }

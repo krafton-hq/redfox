@@ -18,6 +18,17 @@ func NewService(repository apiobject_repository.ClusterRepository[*namespaces.Na
 	return &Service{repository: repository, namespacedRepos: namespacedRepos}
 }
 
+func (s *Service) Init(ctx context.Context) error {
+	nss, err := s.repository.List(ctx, nil)
+	if err != nil {
+		return err
+	}
+	for _, namespace := range nss {
+		s.updateNamespacedRepositories(ctx, namespace)
+	}
+	return nil
+}
+
 func (s *Service) Get(ctx context.Context, name string) (*namespaces.Namespace, error) {
 	return s.repository.Get(ctx, name)
 }

@@ -1,6 +1,7 @@
 package application
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -170,5 +171,7 @@ func (a *Application) initInternal() error {
 	a.nsController = namespace_con.NewController(nsService)
 	a.natIpController = document_con.NewNatIpDocController(natIpService)
 	a.appController = app_lifecycle_con.NewAppLifecycle()
-	return nil
+
+	err := nsService.Init(context.TODO())
+	return err
 }

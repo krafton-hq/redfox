@@ -32,9 +32,9 @@ func (s *Service) Create(ctx context.Context, natIp *documents.NatIp) error {
 }
 
 func (s *Service) Update(ctx context.Context, natIp *documents.NatIp) error {
-	return s.Update(ctx, natIp)
+	return s.repository.Update(ctx, natIp)
 }
 
 func (s *Service) Delete(ctx context.Context, namespace string, name string) error {
-	return s.Delete(ctx, namespace, name)
+	return s.repository.Delete(ctx, namespace, name)
 }

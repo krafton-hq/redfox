@@ -18,6 +18,18 @@ func NewTransactionalClusterService[T any](service ClusterService[T], tr transac
 	return &TransactionalClusterService[T]{service: service, tr: tr}
 }
 
+func (s *TransactionalClusterService[T]) Init(ctx context.Context) error {
+	ctx = s.tr.WithDatabaseContext(ctx)
+
+	err := s.tr.WithTransaction(ctx, func(ctx context.Context, tx *sqlx.Tx, dialect goqu.SQLDialect) error {
+		return s.service.Init(ctx)
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *TransactionalClusterService[T]) Get(ctx context.Context, name string) (T, error) {
 	ctx = s.tr.WithDatabaseContext(ctx)
 

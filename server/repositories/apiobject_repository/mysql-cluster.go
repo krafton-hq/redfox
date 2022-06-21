@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
+	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/jmoiron/sqlx"
 	"github.com/krafton-hq/red-fox/apis/namespaces"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
@@ -105,12 +106,16 @@ func (r *MysqlClusterRepository[T]) Get(ctx context.Context, name string) (T, er
 }
 
 func (r *MysqlClusterRepository[T]) List(ctx context.Context, labelSelectors map[string]string) ([]T, error) {
-	lo.Keys[string, string](labelSelectors)
-
 	var dbApiObjects []*ApiObject
 	err := r.tr.WithTransaction(ctx, func(ctx context.Context, tx *sqlx.Tx, dialect goqu.SQLDialect) error {
+		var wheres []exp.Expression
+		wheres = append(wheres, goqu.C(fieldRepoKey).Eq(r.uniqueKey))
+		for key := range labelSelectors {
+			wheres = append(wheres, goqu.L("(? member of (`labels`))", key))
+		}
+
 		query, _, _ := goqu.Select("*").SetDialect(dialect).From(tableApiObject).
-			Where(goqu.And(goqu.C(fieldRepoKey).Eq(r.uniqueKey), goqu.L("? member of ", labelSelectors))).ToSQL()
+			Where(goqu.And(wheres...)).ToSQL()
 		zap.S().Info(query)
 		return tx.SelectContext(ctx, &dbApiObjects, query)
 	})
