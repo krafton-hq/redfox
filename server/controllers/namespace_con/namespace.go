@@ -7,16 +7,16 @@ import (
 	"github.com/krafton-hq/red-fox/apis/namespaces"
 	"github.com/krafton-hq/red-fox/server/controllers/utils"
 	"github.com/krafton-hq/red-fox/server/pkg/validation"
-	"github.com/krafton-hq/red-fox/server/services/namespace_service"
+	"github.com/krafton-hq/red-fox/server/services/service_helper"
 )
 
 type Controller struct {
 	namespaces.UnimplementedNamespaceServerServer
 
-	service *namespace_service.Service
+	service service_helper.ClusterService[*namespaces.Namespace]
 }
 
-func NewController(service *namespace_service.Service) *Controller {
+func NewController(service service_helper.ClusterService[*namespaces.Namespace]) *Controller {
 	return &Controller{service: service}
 }
 
@@ -77,6 +77,33 @@ func (c *Controller) CreateNamespace(ctx context.Context, req *namespaces.Create
 	}
 
 	return &idl_common.CommonRes{Message: "Create Namespace Success"}, nil
+}
+
+func (c *Controller) UpdateNamespace(ctx context.Context, req *namespaces.UpdateNamespaceReq) (*idl_common.CommonRes, error) {
+	if errors := validation.IsDiscoveryName(req.Namespace.Metadata.Name); len(errors) > 0 {
+		return utils.CommonResDnsLabel("name", errors), nil
+	}
+	if req.Namespace.Metadata.Namespace != "" {
+		return utils.CommonResEmpty("Namespace", "namespace"), nil
+	}
+	for _, objMeta := range req.Namespace.Spec.ApiObjects {
+		if errors := validation.IsGroup(objMeta.Group); len(errors) > 0 {
+			return utils.CommonResDnsLabel("group", errors), nil
+		}
+		if rawErr := validation.IsVersion(objMeta.Version); rawErr != "" {
+			return utils.CommonResFieldValid("version", []string{rawErr}), nil
+		}
+		if rawErr := validation.IsKind(objMeta.Kind); rawErr != "" {
+			return utils.CommonResFieldValid("kind", []string{rawErr}), nil
+		}
+	}
+
+	err := c.service.Update(ctx, req.Namespace)
+	if err != nil {
+		return utils.CommonResInternalError(err), nil
+	}
+
+	return &idl_common.CommonRes{Message: "Update Namespace Success"}, nil
 }
 
 func (c *Controller) DeleteNamespaces(ctx context.Context, req *idl_common.SingleObjectReq) (*idl_common.CommonRes, error) {

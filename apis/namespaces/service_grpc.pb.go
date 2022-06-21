@@ -26,6 +26,7 @@ type NamespaceServerClient interface {
 	GetNamespace(ctx context.Context, in *idl_common.SingleObjectReq, opts ...grpc.CallOption) (*GetNamespaceRes, error)
 	ListNamespaces(ctx context.Context, in *idl_common.ListObjectReq, opts ...grpc.CallOption) (*ListNamespacesRes, error)
 	CreateNamespace(ctx context.Context, in *CreateNamespaceReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error)
+	UpdateNamespace(ctx context.Context, in *UpdateNamespaceReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error)
 	DeleteNamespaces(ctx context.Context, in *idl_common.SingleObjectReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error)
 }
 
@@ -64,6 +65,15 @@ func (c *namespaceServerClient) CreateNamespace(ctx context.Context, in *CreateN
 	return out, nil
 }
 
+func (c *namespaceServerClient) UpdateNamespace(ctx context.Context, in *UpdateNamespaceReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error) {
+	out := new(idl_common.CommonRes)
+	err := c.cc.Invoke(ctx, "/redfox.api.namespaces.NamespaceServer/UpdateNamespace", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *namespaceServerClient) DeleteNamespaces(ctx context.Context, in *idl_common.SingleObjectReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error) {
 	out := new(idl_common.CommonRes)
 	err := c.cc.Invoke(ctx, "/redfox.api.namespaces.NamespaceServer/DeleteNamespaces", in, out, opts...)
@@ -80,6 +90,7 @@ type NamespaceServerServer interface {
 	GetNamespace(context.Context, *idl_common.SingleObjectReq) (*GetNamespaceRes, error)
 	ListNamespaces(context.Context, *idl_common.ListObjectReq) (*ListNamespacesRes, error)
 	CreateNamespace(context.Context, *CreateNamespaceReq) (*idl_common.CommonRes, error)
+	UpdateNamespace(context.Context, *UpdateNamespaceReq) (*idl_common.CommonRes, error)
 	DeleteNamespaces(context.Context, *idl_common.SingleObjectReq) (*idl_common.CommonRes, error)
 	mustEmbedUnimplementedNamespaceServerServer()
 }
@@ -96,6 +107,9 @@ func (UnimplementedNamespaceServerServer) ListNamespaces(context.Context, *idl_c
 }
 func (UnimplementedNamespaceServerServer) CreateNamespace(context.Context, *CreateNamespaceReq) (*idl_common.CommonRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNamespace not implemented")
+}
+func (UnimplementedNamespaceServerServer) UpdateNamespace(context.Context, *UpdateNamespaceReq) (*idl_common.CommonRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateNamespace not implemented")
 }
 func (UnimplementedNamespaceServerServer) DeleteNamespaces(context.Context, *idl_common.SingleObjectReq) (*idl_common.CommonRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteNamespaces not implemented")
@@ -167,6 +181,24 @@ func _NamespaceServer_CreateNamespace_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NamespaceServer_UpdateNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateNamespaceReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NamespaceServerServer).UpdateNamespace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/redfox.api.namespaces.NamespaceServer/UpdateNamespace",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NamespaceServerServer).UpdateNamespace(ctx, req.(*UpdateNamespaceReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _NamespaceServer_DeleteNamespaces_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(idl_common.SingleObjectReq)
 	if err := dec(in); err != nil {
@@ -203,6 +235,10 @@ var NamespaceServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateNamespace",
 			Handler:    _NamespaceServer_CreateNamespace_Handler,
+		},
+		{
+			MethodName: "UpdateNamespace",
+			Handler:    _NamespaceServer_UpdateNamespace_Handler,
 		},
 		{
 			MethodName: "DeleteNamespaces",

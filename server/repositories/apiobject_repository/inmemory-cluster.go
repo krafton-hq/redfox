@@ -100,3 +100,14 @@ func (r *InMemoryClusterRepository[T]) Truncate(ctx context.Context) error {
 func (r *InMemoryClusterRepository[T]) Info() *namespaces.GroupVersionKind {
 	return proto.Clone(r.gvk).(*namespaces.GroupVersionKind)
 }
+
+type InmemoryClusterRepositoryFactory[T domain_helper.Metadatable] struct {
+}
+
+func (f *InmemoryClusterRepositoryFactory[T]) Create(gvk *namespaces.GroupVersionKind, uniqueKeySuffix string) ClusterRepository[T] {
+	return NewInMemoryClusterRepository[T](gvk, uniqueKeySuffix)
+}
+
+func NewInmemoryClusterRepositoryFactory[T domain_helper.Metadatable]() *InmemoryClusterRepositoryFactory[T] {
+	return &InmemoryClusterRepositoryFactory[T]{}
+}

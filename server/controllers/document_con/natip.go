@@ -7,16 +7,16 @@ import (
 	"github.com/krafton-hq/red-fox/apis/idl_common"
 	"github.com/krafton-hq/red-fox/server/controllers/utils"
 	"github.com/krafton-hq/red-fox/server/pkg/validation"
-	"github.com/krafton-hq/red-fox/server/services/natip_service"
+	"github.com/krafton-hq/red-fox/server/services/service_helper"
 )
 
 type NatIpController struct {
 	documents.UnimplementedNatIpServerServer
 
-	service *natip_service.Service
+	service service_helper.NamespacedService[*documents.NatIp]
 }
 
-func NewNatIpDocController(service *natip_service.Service) *NatIpController {
+func NewNatIpDocController(service service_helper.NamespacedService[*documents.NatIp]) *NatIpController {
 	return &NatIpController{service: service}
 }
 

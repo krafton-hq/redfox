@@ -10,7 +10,7 @@ import (
 )
 
 func TestInmemoryNamespacedRepository_Create(t *testing.T) {
-	repo := NewInmemoryNamespacedRepository[*documents.NatIp](domain_helper.NatIpGvk, newMysqlClusterRepositoryFactory[*documents.NatIp](domain_helper.NewNatIpFactory()))
+	repo := NewGenericNamespacedRepository[*documents.NatIp](domain_helper.NatIpGvk, NewMysqlClusterRepositoryFactory[*documents.NatIp](domain_helper.NewNatIpFactory()))
 	repo.EnableNamespace(context.TODO(), "default")
 	repo.EnableNamespace(context.TODO(), "musong")
 

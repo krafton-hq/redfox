@@ -10,22 +10,22 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type InmemoryNamespacedRepository[T domain_helper.Metadatable] struct {
+type GenericNamespacedRepository[T domain_helper.Metadatable] struct {
 	repos map[string]ClusterRepository[T]
 	gvk   *namespaces.GroupVersionKind
 
 	repoFactory ClusterRepositoryFactory[T]
 }
 
-func NewInmemoryNamespacedRepository[T domain_helper.Metadatable](gvk *namespaces.GroupVersionKind, repoFactory ClusterRepositoryFactory[T]) *InmemoryNamespacedRepository[T] {
-	return &InmemoryNamespacedRepository[T]{
+func NewGenericNamespacedRepository[T domain_helper.Metadatable](gvk *namespaces.GroupVersionKind, repoFactory ClusterRepositoryFactory[T]) *GenericNamespacedRepository[T] {
+	return &GenericNamespacedRepository[T]{
 		repos:       map[string]ClusterRepository[T]{},
 		gvk:         gvk,
 		repoFactory: repoFactory,
 	}
 }
 
-func (r *InmemoryNamespacedRepository[T]) Get(ctx context.Context, namespace string, name string) (T, error) {
+func (r *GenericNamespacedRepository[T]) Get(ctx context.Context, namespace string, name string) (T, error) {
 	repo, exist := r.repos[namespace]
 	if !exist {
 		var v T
@@ -35,7 +35,7 @@ func (r *InmemoryNamespacedRepository[T]) Get(ctx context.Context, namespace str
 	return repo.Get(ctx, name)
 }
 
-func (r *InmemoryNamespacedRepository[T]) List(ctx context.Context, labelSelectors map[string]string) ([]T, error) {
+func (r *GenericNamespacedRepository[T]) List(ctx context.Context, labelSelectors map[string]string) ([]T, error) {
 	var ret []T
 	for _, repo := range r.repos {
 		nRet, err := repo.List(ctx, labelSelectors)
@@ -47,7 +47,7 @@ func (r *InmemoryNamespacedRepository[T]) List(ctx context.Context, labelSelecto
 	return ret, nil
 }
 
-func (r *InmemoryNamespacedRepository[T]) ListNamespaced(ctx context.Context, namespace string, labelSelectors map[string]string) ([]T, error) {
+func (r *GenericNamespacedRepository[T]) ListNamespaced(ctx context.Context, namespace string, labelSelectors map[string]string) ([]T, error) {
 	repo, exist := r.repos[namespace]
 	if !exist {
 		return nil, fmt.Errorf("requested namespace is not eixst: %s", namespace)
@@ -56,7 +56,7 @@ func (r *InmemoryNamespacedRepository[T]) ListNamespaced(ctx context.Context, na
 	return repo.List(ctx, labelSelectors)
 }
 
-func (r *InmemoryNamespacedRepository[T]) Create(ctx context.Context, obj T) error {
+func (r *GenericNamespacedRepository[T]) Create(ctx context.Context, obj T) error {
 	namespace := obj.GetMetadata().Namespace
 	repo, exist := r.repos[namespace]
 	if !exist {
@@ -66,7 +66,7 @@ func (r *InmemoryNamespacedRepository[T]) Create(ctx context.Context, obj T) err
 	return repo.Create(ctx, obj)
 }
 
-func (r *InmemoryNamespacedRepository[T]) Update(ctx context.Context, obj T) error {
+func (r *GenericNamespacedRepository[T]) Update(ctx context.Context, obj T) error {
 	namespace := obj.GetMetadata().Namespace
 	repo, exist := r.repos[namespace]
 	if !exist {
@@ -76,7 +76,7 @@ func (r *InmemoryNamespacedRepository[T]) Update(ctx context.Context, obj T) err
 	return repo.Update(ctx, obj)
 }
 
-func (r *InmemoryNamespacedRepository[T]) Delete(ctx context.Context, namespace string, name string) error {
+func (r *GenericNamespacedRepository[T]) Delete(ctx context.Context, namespace string, name string) error {
 	repo, exist := r.repos[namespace]
 	if !exist {
 		return fmt.Errorf("requested namespace is not eixst: %s", namespace)
@@ -85,11 +85,20 @@ func (r *InmemoryNamespacedRepository[T]) Delete(ctx context.Context, namespace 
 	return repo.Delete(ctx, name)
 }
 
-func (r *InmemoryNamespacedRepository[T]) Info() *namespaces.GroupVersionKind {
+func (r *GenericNamespacedRepository[T]) Truncate(ctx context.Context) error {
+	for _, repo := range r.repos {
+		if err := repo.Truncate(ctx); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (r *GenericNamespacedRepository[T]) Info() *namespaces.GroupVersionKind {
 	return proto.Clone(r.gvk).(*namespaces.GroupVersionKind)
 }
 
-func (r *InmemoryNamespacedRepository[T]) EnableNamespace(ctx context.Context, namespace string) bool {
+func (r *GenericNamespacedRepository[T]) EnableNamespace(ctx context.Context, namespace string) bool {
 	if _, exist := r.repos[namespace]; exist {
 		return false
 	}
@@ -97,7 +106,7 @@ func (r *InmemoryNamespacedRepository[T]) EnableNamespace(ctx context.Context, n
 	return true
 }
 
-func (r *InmemoryNamespacedRepository[T]) DisableNamespace(ctx context.Context, namespace string) bool {
+func (r *GenericNamespacedRepository[T]) DisableNamespace(ctx context.Context, namespace string) bool {
 	repo, exist := r.repos[namespace]
 	if !exist {
 		return false

@@ -21,13 +21,20 @@ import (
 	"github.com/krafton-hq/red-fox/server/controllers/app_lifecycle_con"
 	"github.com/krafton-hq/red-fox/server/controllers/document_con"
 	"github.com/krafton-hq/red-fox/server/controllers/namespace_con"
+	"github.com/krafton-hq/red-fox/server/pkg/database_helper"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
+	"github.com/krafton-hq/red-fox/server/pkg/errors"
+	"github.com/krafton-hq/red-fox/server/pkg/transactional"
 	"github.com/krafton-hq/red-fox/server/repositories/apiobject_repository"
 	"github.com/krafton-hq/red-fox/server/services/namespace_service"
 	"github.com/krafton-hq/red-fox/server/services/natip_service"
+	"github.com/krafton-hq/red-fox/server/services/service_helper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Application struct {
@@ -44,8 +51,11 @@ func NewApplication(config *configs.RedFoxConfig) *Application {
 	return &Application{config: config}
 }
 
-func (a *Application) Init() {
-	a.initInternal()
+func (a *Application) Init() error {
+	err := a.initInternal()
+	if err != nil {
+		return err
+	}
 
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
@@ -107,20 +117,58 @@ func (a *Application) Init() {
 		}
 	}(a.config.Listeners.RestPort)
 
+	return nil
 }
 
 func (a *Application) initInternal() error {
-	nsRepo := apiobject_repository.NewInMemoryClusterRepository[*namespaces.Namespace](domain_helper.NamespaceGvk, apiobject_repository.DefaultSystemNamespace)
-	natIpRepo := apiobject_repository.NewInmemoryNamespacedRepository[*documents.NatIp](domain_helper.NatIpGvk)
-	endpointRepo := apiobject_repository.NewInmemoryNamespacedRepository[*documents.Endpoint](domain_helper.EndpointGvk)
-	var nsRepos = []apiobject_repository.NamespacedRepositoryMetadata{natIpRepo, endpointRepo}
+	var tr transactional.Transactional
 
-	natIpService := natip_service.NewService(natIpRepo)
-	a.natIpController = document_con.NewNatIpDocController(natIpService)
+	switch a.config.Database.Type {
+	case configs.DatabaseType_Inmemory:
+		tr = transactional.NewNoop()
+	case configs.DatabaseType_Mysql:
+		db, err := database_helper.NewDatabase(a.config.Database.Url, configs.ParseStringRef(a.config.Database.UsernameRef), configs.ParseStringRef(a.config.Database.PasswordRef))
+		if err != nil {
+			zap.S().Errorw("Create Database Connection Failed", "error", err)
+			return err
+		}
+		tr, err = transactional.NewSqlTransactional(db, transactional.DialectMysql, nil)
+		if err != nil {
+			zap.S().Errorw("Create Database Transaction Helper Failed", "error", err)
+			return err
+		}
+	default:
+		return errors.NewErrorf("Unknown Database Type: %s", a.config.Database.Type.String())
+	}
 
-	nsService := namespace_service.NewService(nsRepo, nsRepos)
+	var nsRepo apiobject_repository.ClusterRepository[*namespaces.Namespace]
+	var natIpRepo apiobject_repository.NamespacedRepository[*documents.NatIp]
+	var endpointRepo apiobject_repository.NamespacedRepository[*documents.Endpoint]
+
+	switch a.config.Database.Type {
+	case configs.DatabaseType_Inmemory:
+		nsRepo = apiobject_repository.NewInMemoryClusterRepository[*namespaces.Namespace](domain_helper.NamespaceGvk, apiobject_repository.DefaultSystemNamespace)
+		natIpRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.NatIp](domain_helper.NatIpGvk, apiobject_repository.NewInmemoryClusterRepositoryFactory[*documents.NatIp]())
+		endpointRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.Endpoint](domain_helper.EndpointGvk, apiobject_repository.NewInmemoryClusterRepositoryFactory[*documents.Endpoint]())
+		break
+	case configs.DatabaseType_Mysql:
+		nsRepo = apiobject_repository.NewMysqlClusterRepository[*namespaces.Namespace](domain_helper.NamespaceGvk, apiobject_repository.DefaultSystemNamespace, domain_helper.NewNamespaceFactory(), tr)
+		natIpRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.NatIp](domain_helper.NatIpGvk, apiobject_repository.NewMysqlClusterRepositoryFactory[*documents.NatIp](domain_helper.NewNatIpFactory(), tr))
+		endpointRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.Endpoint](domain_helper.EndpointGvk, apiobject_repository.NewMysqlClusterRepositoryFactory[*documents.Endpoint](domain_helper.NewEndpointFactory(), tr))
+		break
+	default:
+		return errors.NewErrorf("Unknown Database Type: %s", a.config.Database.Type.String())
+	}
+
+	var namespacedRepos = []apiobject_repository.NamespacedRepositoryMetadata{natIpRepo, endpointRepo}
+	var natIpService service_helper.NamespacedService[*documents.NatIp] = natip_service.NewService(natIpRepo)
+	var nsService service_helper.ClusterService[*namespaces.Namespace] = namespace_service.NewService(nsRepo, namespacedRepos)
+
+	nsService = service_helper.NewTransactionalClusterService[*namespaces.Namespace](nsService, tr)
+	natIpService = service_helper.NewTransactionalNamespacedService[*documents.NatIp](natIpService, tr)
+
 	a.nsController = namespace_con.NewController(nsService)
-
+	a.natIpController = document_con.NewNatIpDocController(natIpService)
 	a.appController = app_lifecycle_con.NewAppLifecycle()
 	return nil
 }
