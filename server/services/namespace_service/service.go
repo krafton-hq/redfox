@@ -10,12 +10,23 @@ import (
 )
 
 type Service struct {
-	repository              apiobject_repository.ClusterRepository[*namespaces.Namespace]
-	allNamespacedRepository []apiobject_repository.NamespacedRepositoryMetadata
+	repository      apiobject_repository.ClusterRepository[*namespaces.Namespace]
+	namespacedRepos []apiobject_repository.NamespacedRepositoryMetadata
 }
 
-func NewService(repository apiobject_repository.ClusterRepository[*namespaces.Namespace], allNamespacedRepository []apiobject_repository.NamespacedRepositoryMetadata) *Service {
-	return &Service{repository: repository, allNamespacedRepository: allNamespacedRepository}
+func NewService(repository apiobject_repository.ClusterRepository[*namespaces.Namespace], namespacedRepos []apiobject_repository.NamespacedRepositoryMetadata) *Service {
+	return &Service{repository: repository, namespacedRepos: namespacedRepos}
+}
+
+func (s *Service) Init(ctx context.Context) error {
+	nss, err := s.repository.List(ctx, nil)
+	if err != nil {
+		return err
+	}
+	for _, namespace := range nss {
+		s.updateNamespacedRepositories(ctx, namespace)
+	}
+	return nil
 }
 
 func (s *Service) Get(ctx context.Context, name string) (*namespaces.Namespace, error) {
@@ -49,7 +60,7 @@ func (s *Service) Update(ctx context.Context, namespace *namespaces.Namespace) e
 func (s *Service) updateNamespacedRepositories(ctx context.Context, namespace *namespaces.Namespace) {
 	nsEnableTargets := map[string]apiobject_repository.NamespacedRepositoryMetadata{}
 	for _, objMeta := range namespace.Spec.ApiObjects {
-		for _, repoMetadata := range s.allNamespacedRepository {
+		for _, repoMetadata := range s.namespacedRepos {
 			if proto.Equal(objMeta, repoMetadata.Info()) {
 				if objMeta.Enabled {
 					nsEnableTargets[objMeta.Kind] = repoMetadata
@@ -58,14 +69,14 @@ func (s *Service) updateNamespacedRepositories(ctx context.Context, namespace *n
 		}
 	}
 
-	for _, repoMetadata := range s.allNamespacedRepository {
+	for _, repoMetadata := range s.namespacedRepos {
 		gvk := repoMetadata.Info()
 		if _, exist := nsEnableTargets[gvk.Kind]; exist {
-			repoMetadata.EnableNamespace(ctx, namespace.Metadata.Name)
-			zap.S().Infof("Enable Namespace '%s' to GVK: %s", namespace.Metadata.Name, gvk.String())
+			result := repoMetadata.EnableNamespace(ctx, namespace.Metadata.Name)
+			zap.S().Infow("Enabled Namespace", "result", result, "name", namespace.Metadata.Name, "gvk", gvk.String())
 		} else {
-			repoMetadata.DisableNamespace(ctx, namespace.Metadata.Name)
-			zap.S().Infof("Disable Namespace '%s' to GVK: %s", namespace.Metadata.Name, gvk.String())
+			result := repoMetadata.DisableNamespace(ctx, namespace.Metadata.Name)
+			zap.S().Infow("Disabled Namespace", "result", result, "name", namespace.Metadata.Name, "gvk", gvk.String())
 		}
 	}
 }
@@ -76,8 +87,9 @@ func (s *Service) Delete(ctx context.Context, name string) error {
 		return err
 	}
 
-	for _, metadata := range s.allNamespacedRepository {
-		metadata.DisableNamespace(ctx, name)
+	for _, metadata := range s.namespacedRepos {
+		result := metadata.DisableNamespace(ctx, name)
+		zap.S().Infow("Disabled Namespace", "result", result, "name", name, "gvk", metadata.Info().String())
 	}
 	return nil
 }

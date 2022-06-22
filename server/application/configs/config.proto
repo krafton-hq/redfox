@@ -6,9 +6,33 @@ option go_package = "github.com/krafton-hq/red-fox/server/application/configs";
 
 message RedFoxConfig {
   Listeners listeners = 1;
+  Database database = 2;
 }
 
 message Listeners {
   int32 grpcPort = 1;
   int32 restPort = 2;
+}
+
+enum DatabaseType {
+  Inmemory = 0;
+  Mysql = 1;
+}
+
+message Database {
+  DatabaseType type = 1;
+  // example: mysql://@localhost:3306/dbname, available only mysql mode
+  string url = 2;
+  StringRef usernameRef = 3;
+  StringRef passwordRef = 4;
+}
+
+enum RefType {
+  Static = 0;
+  Env = 1;
+}
+
+message StringRef {
+  RefType type = 1;
+  string value = 2;
 }

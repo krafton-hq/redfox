@@ -1,17 +1,11 @@
-package apiobject_repository
+package service_helper
 
 import (
 	"context"
-
-	"github.com/krafton-hq/red-fox/apis/idl_common"
-	"github.com/krafton-hq/red-fox/apis/namespaces"
 )
 
-type Metadatable interface {
-	GetMetadata() *idl_common.ObjectMeta
-}
-
-type ClusterRepository[T Metadatable] interface {
+type ClusterService[T any] interface {
+	Init(ctx context.Context) error
 	Get(ctx context.Context, name string) (T, error)
 	List(ctx context.Context, labelSelectors map[string]string) ([]T, error)
 	Create(ctx context.Context, obj T) error
@@ -19,19 +13,11 @@ type ClusterRepository[T Metadatable] interface {
 	Delete(ctx context.Context, name string) error
 }
 
-type NamespacedRepository[T Metadatable] interface {
+type NamespacedService[T any] interface {
 	Get(ctx context.Context, namespace string, name string) (T, error)
 	List(ctx context.Context, labelSelectors map[string]string) ([]T, error)
 	ListNamespaced(ctx context.Context, namespace string, labelSelectors map[string]string) ([]T, error)
 	Create(ctx context.Context, obj T) error
 	Update(ctx context.Context, obj T) error
 	Delete(ctx context.Context, namespace string, name string) error
-
-	NamespacedRepositoryMetadata
-}
-
-type NamespacedRepositoryMetadata interface {
-	Info() *namespaces.GroupVersionKind
-	EnableNamespace(ctx context.Context, namespace string) bool
-	DisableNamespace(ctx context.Context, namespace string) bool
 }

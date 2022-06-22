@@ -51,7 +51,10 @@ func init() {
 		}
 
 		app := application.NewApplication(config)
-		app.Init()
+		err = app.Init()
+		if err != nil {
+			return err
+		}
 
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
