@@ -27,6 +27,7 @@ import (
 	"github.com/krafton-hq/red-fox/server/pkg/errors"
 	"github.com/krafton-hq/red-fox/server/pkg/transactional"
 	"github.com/krafton-hq/red-fox/server/repositories/apiobject_repository"
+	"github.com/krafton-hq/red-fox/server/services/endpoint_service"
 	"github.com/krafton-hq/red-fox/server/services/namespace_service"
 	"github.com/krafton-hq/red-fox/server/services/natip_service"
 	"github.com/krafton-hq/red-fox/server/services/service_helper"
@@ -43,9 +44,10 @@ type Application struct {
 
 	grpcServer *grpc.Server
 
-	nsController    *namespace_con.Controller
-	natIpController *document_con.NatIpController
-	appController   *app_lifecycle_con.GrpcController
+	nsController       *namespace_con.Controller
+	natIpController    *document_con.NatIpController
+	endpointController *document_con.EndpointController
+	appController      *app_lifecycle_con.GrpcController
 }
 
 func NewApplication(config *configs.RedFoxConfig) *Application {
@@ -74,6 +76,7 @@ func (a *Application) Init() error {
 	app_lifecycle.RegisterApplicationLifecycleServer(grpcServer, a.appController)
 	namespaces.RegisterNamespaceServerServer(grpcServer, a.nsController)
 	documents.RegisterNatIpServerServer(grpcServer, a.natIpController)
+	documents.RegisterEndpointServerServer(grpcServer, a.endpointController)
 
 	for name := range grpcServer.GetServiceInfo() {
 		zap.S().Infow("Registered gRpc Service", "name", name)
@@ -163,13 +166,16 @@ func (a *Application) initInternal() error {
 
 	var namespacedRepos = []apiobject_repository.NamespacedRepositoryMetadata{natIpRepo, endpointRepo}
 	var natIpService service_helper.NamespacedService[*documents.NatIp] = natip_service.NewService(natIpRepo)
+	var endpointService service_helper.NamespacedService[*documents.Endpoint] = endpoint_service.NewService(endpointRepo)
 	var nsService service_helper.ClusterService[*namespaces.Namespace] = namespace_service.NewService(nsRepo, namespacedRepos)
 
 	nsService = service_helper.NewTransactionalClusterService[*namespaces.Namespace](nsService, tr)
 	natIpService = service_helper.NewTransactionalNamespacedService[*documents.NatIp](natIpService, tr)
+	endpointService = service_helper.NewTransactionalNamespacedService[*documents.Endpoint](endpointService, tr)
 
 	a.nsController = namespace_con.NewController(nsService)
 	a.natIpController = document_con.NewNatIpDocController(natIpService)
+	a.endpointController = document_con.NewEndpointController(endpointService)
 	a.appController = app_lifecycle_con.NewAppLifecycle()
 
 	err := nsService.Init(context.TODO())

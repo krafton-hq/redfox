@@ -3,6 +3,7 @@ package transactional
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
@@ -57,13 +58,13 @@ func (t *sqlt) WithTransaction(ctx context.Context, fn func(context.Context, *sq
 	if !found {
 		message := "Sqlt.WithTransaction: Cannot find Database object in current context.Context"
 		zap.S().Info(message)
-		return errors.NewError(message)
+		return errors.NewInternalError(message)
 	}
 	tx, err := db.BeginTxx(ctx, nil)
 	if err != nil {
 		message := "Sqlt.WithTransaction: Failed to Start Transaction"
 		zap.S().Infow(message, "error", err)
-		return errors.WrapError(err, message)
+		return errors.WrapInternalError(err, message)
 	}
 
 	defer func() {
@@ -71,19 +72,18 @@ func (t *sqlt) WithTransaction(ctx context.Context, fn func(context.Context, *sq
 			return
 		}
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
-			err = errors.WrapErrorf(err, "Sqlt.WithTransaction: Failed to rollback %s", rollbackErr.Error())
+			err = errors.WrapInternalError(err, fmt.Sprintf("Sqlt.WithTransaction: Failed to rollback %s", rollbackErr.Error()))
 		}
 	}()
 
 	ctx = context.WithValue(ctx, transactionKey{}, tx)
 	err = fn(ctx, tx, t.dialect)
 	if err != nil {
-		err = errors.WrapError(err, "Sqlt.WithTransaction: Failed to Execute Transaction")
 		return err
 	}
 	err = tx.Commit()
 	if err != nil {
-		err = errors.WrapError(err, "Sqlt.WithTransaction: Failed to Commit Transaction")
+		err = errors.WrapInternalError(err, "Sqlt.WithTransaction: Failed to Commit Transaction")
 		return err
 	}
 	return err

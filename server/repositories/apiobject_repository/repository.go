@@ -3,7 +3,7 @@ package apiobject_repository
 import (
 	"context"
 
-	"github.com/krafton-hq/red-fox/apis/namespaces"
+	"github.com/krafton-hq/red-fox/apis/idl_common"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
 )
 
@@ -17,7 +17,7 @@ type ClusterRepository[T domain_helper.Metadatable] interface {
 	Delete(ctx context.Context, name string) error
 	Truncate(ctx context.Context) error
 
-	Info() *namespaces.GroupVersionKind
+	Info() *idl_common.GroupVersionKind
 }
 
 type NamespacedRepository[T domain_helper.Metadatable] interface {
@@ -33,11 +33,11 @@ type NamespacedRepository[T domain_helper.Metadatable] interface {
 }
 
 type NamespacedRepositoryMetadata interface {
-	Info() *namespaces.GroupVersionKind
+	Info() *idl_common.GroupVersionKind
 	EnableNamespace(ctx context.Context, namespace string) bool
 	DisableNamespace(ctx context.Context, namespace string) bool
 }
 
 type ClusterRepositoryFactory[T domain_helper.Metadatable] interface {
-	Create(gvk *namespaces.GroupVersionKind, uniqueKeySuffix string) ClusterRepository[T]
+	Create(gvk *idl_common.GroupVersionKind, uniqueKeySuffix string) ClusterRepository[T]
 }

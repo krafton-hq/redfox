@@ -2,14 +2,14 @@ package domain_helper
 
 import (
 	"github.com/krafton-hq/red-fox/apis/documents"
+	"github.com/krafton-hq/red-fox/apis/idl_common"
 	"github.com/krafton-hq/red-fox/apis/namespaces"
 )
 
-var NamespaceGvk = &namespaces.GroupVersionKind{
+var NamespaceGvk = &idl_common.GroupVersionKind{
 	Group:   "core",
 	Version: "v1",
 	Kind:    "Namespace",
-	Enabled: true,
 }
 
 type namespaceFactory struct {
@@ -23,11 +23,10 @@ func NewNamespaceFactory() MetadatableFactory[*namespaces.Namespace] {
 	return &namespaceFactory{}
 }
 
-var NatIpGvk = &namespaces.GroupVersionKind{
+var NatIpGvk = &idl_common.GroupVersionKind{
 	Group:   "red-fox.sbx-central.io",
 	Version: "v1alpha1",
 	Kind:    "NatIp",
-	Enabled: true,
 }
 
 type natIpFactory struct {
@@ -41,11 +40,10 @@ func NewNatIpFactory() MetadatableFactory[*documents.NatIp] {
 	return &natIpFactory{}
 }
 
-var EndpointGvk = &namespaces.GroupVersionKind{
+var EndpointGvk = &idl_common.GroupVersionKind{
 	Group:   "red-fox.sbx-central.io",
 	Version: "v1alpha1",
 	Kind:    "Endpoint",
-	Enabled: true,
 }
 
 type endpointFactory struct {

@@ -4,20 +4,21 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/krafton-hq/red-fox/apis/namespaces"
+	"github.com/krafton-hq/red-fox/apis/idl_common"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
+	"github.com/krafton-hq/red-fox/server/pkg/errors"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )
 
 type GenericNamespacedRepository[T domain_helper.Metadatable] struct {
 	repos map[string]ClusterRepository[T]
-	gvk   *namespaces.GroupVersionKind
+	gvk   *idl_common.GroupVersionKind
 
 	repoFactory ClusterRepositoryFactory[T]
 }
 
-func NewGenericNamespacedRepository[T domain_helper.Metadatable](gvk *namespaces.GroupVersionKind, repoFactory ClusterRepositoryFactory[T]) *GenericNamespacedRepository[T] {
+func NewGenericNamespacedRepository[T domain_helper.Metadatable](gvk *idl_common.GroupVersionKind, repoFactory ClusterRepositoryFactory[T]) *GenericNamespacedRepository[T] {
 	return &GenericNamespacedRepository[T]{
 		repos:       map[string]ClusterRepository[T]{},
 		gvk:         gvk,
@@ -29,7 +30,7 @@ func (r *GenericNamespacedRepository[T]) Get(ctx context.Context, namespace stri
 	repo, exist := r.repos[namespace]
 	if !exist {
 		var v T
-		return v, fmt.Errorf("no Namespace/%s resource found  in cluster", namespace)
+		return v, errors.NewNotFound(fmt.Sprintf("Namespace/%s", namespace))
 	}
 
 	return repo.Get(ctx, name)
@@ -50,7 +51,7 @@ func (r *GenericNamespacedRepository[T]) List(ctx context.Context, labelSelector
 func (r *GenericNamespacedRepository[T]) ListNamespaced(ctx context.Context, namespace string, labelSelectors map[string]string) ([]T, error) {
 	repo, exist := r.repos[namespace]
 	if !exist {
-		return nil, fmt.Errorf("requested namespace is not eixst: %s", namespace)
+		return nil, errors.NewNotFound(fmt.Sprintf("Namespace/%s", namespace))
 	}
 
 	return repo.List(ctx, labelSelectors)
@@ -60,7 +61,7 @@ func (r *GenericNamespacedRepository[T]) Create(ctx context.Context, obj T) erro
 	namespace := obj.GetMetadata().Namespace
 	repo, exist := r.repos[namespace]
 	if !exist {
-		return fmt.Errorf("requested namespace is not eixst: %s", namespace)
+		return errors.NewNotFound(fmt.Sprintf("Namespace/%s", namespace))
 	}
 
 	return repo.Create(ctx, obj)
@@ -70,7 +71,7 @@ func (r *GenericNamespacedRepository[T]) Update(ctx context.Context, obj T) erro
 	namespace := obj.GetMetadata().Namespace
 	repo, exist := r.repos[namespace]
 	if !exist {
-		return fmt.Errorf("requested namespace is not eixst: %s", namespace)
+		return errors.NewNotFound(fmt.Sprintf("Namespace/%s", namespace))
 	}
 
 	return repo.Update(ctx, obj)
@@ -79,7 +80,7 @@ func (r *GenericNamespacedRepository[T]) Update(ctx context.Context, obj T) erro
 func (r *GenericNamespacedRepository[T]) Delete(ctx context.Context, namespace string, name string) error {
 	repo, exist := r.repos[namespace]
 	if !exist {
-		return fmt.Errorf("requested namespace is not eixst: %s", namespace)
+		return errors.NewNotFound(fmt.Sprintf("Namespace/%s", namespace))
 	}
 
 	return repo.Delete(ctx, name)
@@ -94,8 +95,8 @@ func (r *GenericNamespacedRepository[T]) Truncate(ctx context.Context) error {
 	return nil
 }
 
-func (r *GenericNamespacedRepository[T]) Info() *namespaces.GroupVersionKind {
-	return proto.Clone(r.gvk).(*namespaces.GroupVersionKind)
+func (r *GenericNamespacedRepository[T]) Info() *idl_common.GroupVersionKind {
+	return proto.Clone(r.gvk).(*idl_common.GroupVersionKind)
 }
 
 func (r *GenericNamespacedRepository[T]) EnableNamespace(ctx context.Context, namespace string) bool {

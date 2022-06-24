@@ -10,6 +10,7 @@ import (
 	"github.com/krafton-hq/red-fox/apis/documents"
 	"github.com/krafton-hq/red-fox/apis/idl_common"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
+	"github.com/krafton-hq/red-fox/server/pkg/transactional"
 
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	_ "github.com/go-sql-driver/mysql"
@@ -17,6 +18,7 @@ import (
 
 var mysqlClusterRepo *MysqlClusterRepository[*documents.NatIp]
 var db *sqlx.DB
+var tr transactional.Transactional
 
 func init() {
 	db2, err := sqlx.Open("mysql", "root:mypassword@tcp(127.0.0.1:3306)/red_fox")
@@ -25,7 +27,12 @@ func init() {
 	}
 	db = db2
 
-	mysqlClusterRepo = NewMysqlClusterRepository[*documents.NatIp](domain_helper.NatIpGvk, "default", domain_helper.NewNatIpFactory())
+	tr, err = transactional.NewSqlTransactional(db, "mysql", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	mysqlClusterRepo = NewMysqlClusterRepository[*documents.NatIp](domain_helper.NatIpGvk, "default", domain_helper.NewNatIpFactory(), tr)
 }
 
 func TestMysqlClusterRepository_Create(t *testing.T) {
@@ -48,7 +55,7 @@ func TestMysqlClusterRepository_Create(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.TODO(), databaseKey{}, db)
+	ctx := tr.WithDatabaseContext(context.TODO())
 	err := mysqlClusterRepo.Create(ctx, obj)
 	if err != nil {
 		t.Fatal(err)
@@ -56,7 +63,7 @@ func TestMysqlClusterRepository_Create(t *testing.T) {
 }
 
 func TestMysqlClusterRepository_Get(t *testing.T) {
-	ctx := context.WithValue(context.TODO(), databaseKey{}, db)
+	ctx := tr.WithDatabaseContext(context.TODO())
 	natIp, err := mysqlClusterRepo.Get(ctx, "my-first-object4")
 	if err != nil {
 		t.Fatal(err)
@@ -85,7 +92,7 @@ func TestMysqlClusterRepository_Update(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.TODO(), databaseKey{}, db)
+	ctx := tr.WithDatabaseContext(context.TODO())
 	err := mysqlClusterRepo.Update(ctx, obj)
 	if err != nil {
 		t.Fatal(err)
@@ -93,7 +100,7 @@ func TestMysqlClusterRepository_Update(t *testing.T) {
 }
 
 func TestMysqlClusterRepository_Delete(t *testing.T) {
-	ctx := context.WithValue(context.TODO(), databaseKey{}, db)
+	ctx := tr.WithDatabaseContext(context.TODO())
 	err := mysqlClusterRepo.Delete(ctx, "my-first-object2")
 	if err != nil {
 		t.Fatal(err)
