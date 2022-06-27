@@ -38,6 +38,7 @@ func (s *Service) List(ctx context.Context, labelSelectors map[string]string) ([
 }
 
 func (s *Service) Create(ctx context.Context, namespace *namespaces.Namespace) error {
+
 	err := s.repository.Create(ctx, namespace)
 	if err != nil {
 		return err
@@ -59,12 +60,11 @@ func (s *Service) Update(ctx context.Context, namespace *namespaces.Namespace) e
 
 func (s *Service) updateNamespacedRepositories(ctx context.Context, namespace *namespaces.Namespace) {
 	nsEnableTargets := map[string]apiobject_repository.NamespacedRepositoryMetadata{}
+
 	for _, objMeta := range namespace.Spec.ApiObjects {
 		for _, repoMetadata := range s.namespacedRepos {
 			if proto.Equal(objMeta, repoMetadata.Info()) {
-				if objMeta.Enabled {
-					nsEnableTargets[objMeta.Kind] = repoMetadata
-				}
+				nsEnableTargets[objMeta.Kind] = repoMetadata
 			}
 		}
 	}

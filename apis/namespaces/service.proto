@@ -22,14 +22,7 @@ message Namespace {
 }
 
 message NamespaceSpec {
-  repeated GroupVersionKind apiObjects = 1;
-}
-
-message GroupVersionKind {
-  string group = 1;
-  string version = 2;
-  string kind = 3;
-  bool enabled = 4;
+  repeated idl_common.GroupVersionKind apiObjects = 1;
 }
 
 message GetNamespaceRes {

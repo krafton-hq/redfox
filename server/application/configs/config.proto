@@ -7,6 +7,7 @@ option go_package = "github.com/krafton-hq/red-fox/server/application/configs";
 message RedFoxConfig {
   Listeners listeners = 1;
   Database database = 2;
+  ExternalDns externalDns = 3;
 }
 
 message Listeners {
@@ -35,4 +36,12 @@ enum RefType {
 message StringRef {
   RefType type = 1;
   string value = 2;
+}
+
+message ExternalDns {
+  bool enabled = 1;
+  int32 port = 2;
+  string syncInterval = 3;
+  string natIpDomain = 4;
+  string endpointDomain = 5;
 }

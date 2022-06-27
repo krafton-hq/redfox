@@ -28,6 +28,7 @@ func (s *Service) ListNamespaced(ctx context.Context, namespace string, labelSel
 }
 
 func (s *Service) Create(ctx context.Context, natIp *documents.NatIp) error {
+
 	return s.repository.Create(ctx, natIp)
 }
 

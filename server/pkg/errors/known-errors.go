@@ -52,6 +52,16 @@ func WrapInvalidArguments(origin error, id string) Error {
 	return &InvalidArgumentsError{err: WrapErrorf(origin, invalidArguments, id)}
 }
 
+const invalidField = "Invalid ApiObject: field: '%s', acceptable: '%s', actual: '%s'"
+
+func NewInvalidField(field string, acceptable string, actual string) Error {
+	return &InvalidArgumentsError{err: NewErrorf(invalidField, field, acceptable, actual)}
+}
+
+func WrapInvalidField(err error, field string, acceptable string, actual string) Error {
+	return &InvalidArgumentsError{err: WrapErrorf(err, invalidField, field, acceptable, actual)}
+}
+
 type InternalError struct {
 	err Error
 }

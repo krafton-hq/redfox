@@ -2,13 +2,14 @@ package apiobject_repository
 
 import (
 	"context"
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/jmoiron/sqlx"
-	"github.com/krafton-hq/red-fox/apis/namespaces"
+	"github.com/krafton-hq/red-fox/apis/idl_common"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
 	"github.com/krafton-hq/red-fox/server/pkg/errors"
 	"github.com/krafton-hq/red-fox/server/pkg/transactional"
@@ -48,15 +49,19 @@ func (l Labels) Value() (driver.Value, error) {
 	return buf, err
 }
 
+// Input: Db Api Object
+// Output: Domain Api Object
 func fromDbApiObject[T domain_helper.Metadatable](repo *MysqlClusterRepository[T], obj *ApiObject) (T, error) {
 	t := repo.factory.Create()
 	err := json.Unmarshal([]byte(obj.ObjectJson), t)
 	if err != nil {
-		return t, err
+		return t, errors.WrapErrorf(err, "Unmarshal DbApiObject to DomainApiObject failed")
 	}
 	return t, nil
 }
 
+// Input: Domain Api Object
+// Output: Db Api Object
 func toApiObject[T domain_helper.Metadatable](repo *MysqlClusterRepository[T], t T) (*ApiObject, error) {
 	apiObject := &ApiObject{}
 	apiObject.Name = t.GetMetadata().Name
@@ -65,23 +70,23 @@ func toApiObject[T domain_helper.Metadatable](repo *MysqlClusterRepository[T], t
 
 	object, err := json.Marshal(t)
 	if err != nil {
-		return nil, err
+		return nil, errors.WrapErrorf(err, "Marshal DomainApiObject to DbApiObject failed")
 	}
 	apiObject.ObjectJson = string(object)
 	return apiObject, nil
 }
 
 type MysqlClusterRepository[T domain_helper.Metadatable] struct {
-	gvk       *namespaces.GroupVersionKind
+	gvk       *idl_common.GroupVersionKind
 	uniqueKey string
 	factory   domain_helper.MetadatableFactory[T]
 
 	tr transactional.Transactional
 }
 
-func NewMysqlClusterRepository[T domain_helper.Metadatable](gvk *namespaces.GroupVersionKind, uniqueKeySuffix string, factory domain_helper.MetadatableFactory[T], tr transactional.Transactional) *MysqlClusterRepository[T] {
+func NewMysqlClusterRepository[T domain_helper.Metadatable](gvk *idl_common.GroupVersionKind, uniqueKeySuffix string, factory domain_helper.MetadatableFactory[T], tr transactional.Transactional) *MysqlClusterRepository[T] {
 	return &MysqlClusterRepository[T]{
-		gvk:       proto.Clone(gvk).(*namespaces.GroupVersionKind),
+		gvk:       proto.Clone(gvk).(*idl_common.GroupVersionKind),
 		uniqueKey: fmt.Sprintf("%s/%s/%s", gvk.Group, gvk.Kind, uniqueKeySuffix),
 		factory:   factory,
 		tr:        tr,
@@ -92,10 +97,19 @@ func (r *MysqlClusterRepository[T]) Get(ctx context.Context, name string) (T, er
 	dbApiObject := &ApiObject{}
 
 	err := r.tr.WithTransaction(ctx, func(ctx context.Context, tx *sqlx.Tx, dialect goqu.SQLDialect) error {
-		query, _, _ := goqu.Select("*").SetDialect(dialect).From(tableApiObject).Where(goqu.And(goqu.C(fieldName).Eq(name), goqu.C(fieldRepoKey).Eq(r.uniqueKey))).ToSQL()
+		query, _, _ := goqu.Select("*").SetDialect(dialect).From(tableApiObject).
+			Where(goqu.And(goqu.C(fieldName).Eq(name), goqu.C(fieldRepoKey).Eq(r.uniqueKey))).
+			ToSQL()
 		row := tx.QueryRowxContext(ctx, query)
 
-		return row.StructScan(dbApiObject)
+		err := row.StructScan(dbApiObject)
+		if err == sql.ErrNoRows {
+			return errors.WrapNotFound(err, fmt.Sprintf("%s/%s", r.uniqueKey, name))
+		}
+		if err != nil {
+			return errors.WrapErrorf(err, "Unexpected Error While Get ApiObject")
+		}
+		return nil
 	})
 	if err != nil {
 		var t T
@@ -108,23 +122,25 @@ func (r *MysqlClusterRepository[T]) Get(ctx context.Context, name string) (T, er
 func (r *MysqlClusterRepository[T]) List(ctx context.Context, labelSelectors map[string]string) ([]T, error) {
 	var dbApiObjects []*ApiObject
 	err := r.tr.WithTransaction(ctx, func(ctx context.Context, tx *sqlx.Tx, dialect goqu.SQLDialect) error {
-		var wheres []exp.Expression
-		wheres = append(wheres, goqu.C(fieldRepoKey).Eq(r.uniqueKey))
+		wheres := []exp.Expression{goqu.C(fieldRepoKey).Eq(r.uniqueKey)}
 		for key := range labelSelectors {
 			wheres = append(wheres, goqu.L("(? member of (`labels`))", key))
 		}
 
 		query, _, _ := goqu.Select("*").SetDialect(dialect).From(tableApiObject).
-			Where(goqu.And(wheres...)).ToSQL()
-		zap.S().Info(query)
-		return tx.SelectContext(ctx, &dbApiObjects, query)
+			Where(goqu.And(wheres...)).
+			ToSQL()
+		err := tx.SelectContext(ctx, &dbApiObjects, query)
+		if err != nil {
+			return errors.WrapErrorf(err, "Unexpected Error While List ApiObjects")
+		}
+		return nil
 	})
 	if err != nil {
-		return nil, errors.WrapInternalError(err, "Sql Error")
+		return nil, err
 	}
 
-	ts := lo.Map[*ApiObject, T](dbApiObjects, func(apiObject *ApiObject, _ int) T {
-		var t T
+	domainApiObjects := lo.Map[*ApiObject, T](dbApiObjects, func(apiObject *ApiObject, _ int) (t T) {
 		t, err = fromDbApiObject[T](r, apiObject)
 		return t
 	})
@@ -133,7 +149,7 @@ func (r *MysqlClusterRepository[T]) List(ctx context.Context, labelSelectors map
 	}
 
 	var ret []T
-	for _, obj := range ts {
+	for _, obj := range domainApiObjects {
 		if containsLabels(obj.GetMetadata(), labelSelectors) {
 			ret = append(ret, obj)
 		}
@@ -148,11 +164,21 @@ func (r *MysqlClusterRepository[T]) Create(ctx context.Context, obj T) error {
 		return err
 	}
 	err = r.tr.WithTransaction(ctx, func(ctx context.Context, tx *sqlx.Tx, dialect goqu.SQLDialect) error {
-		query, _, _ := goqu.Insert(tableApiObject).SetDialect(dialect).Rows(dbApiObject).ToSQL()
-		_, err := tx.ExecContext(ctx, query)
+		_, err = r.Get(ctx, dbApiObject.Name)
+		if err == nil {
+			message := fmt.Sprintf("ApiObject Already Exists id: %s", fmt.Sprintf("%s/%s", r.uniqueKey, dbApiObject.Name))
+			zap.S().Infow(message)
+			return errors.NewInvalidArguments(message)
+		}
+
+		query, _, _ := goqu.Insert(tableApiObject).SetDialect(dialect).
+			Rows(dbApiObject).
+			ToSQL()
+		_, err = tx.ExecContext(ctx, query)
 		if err != nil {
-			zap.S().Infow("Create ApiObject Failed", "query", query)
-			return err
+			message := "Unexpected Error While Create ApiObject"
+			zap.S().Infow(message, "query", query)
+			return errors.WrapErrorf(err, message)
 		}
 		return nil
 	})
@@ -160,19 +186,23 @@ func (r *MysqlClusterRepository[T]) Create(ctx context.Context, obj T) error {
 }
 
 func (r *MysqlClusterRepository[T]) Update(ctx context.Context, obj T) error {
-	err := r.tr.WithTransaction(ctx, func(ctx context.Context, tx *sqlx.Tx, dialect goqu.SQLDialect) error {
-		newApiObject, err := toApiObject[T](r, obj)
+	newApiObject, err := toApiObject[T](r, obj)
+	if err != nil {
+		return err
+	}
+	err = r.tr.WithTransaction(ctx, func(ctx context.Context, tx *sqlx.Tx, dialect goqu.SQLDialect) error {
+		_, err = r.Get(ctx, newApiObject.Name)
 		if err != nil {
 			return err
 		}
 
-		query, _, _ := goqu.Update(tableApiObject).SetDialect(dialect).Set(newApiObject).Where(goqu.And(goqu.C(fieldName).Eq(newApiObject.Name), goqu.C(fieldRepoKey).Eq(r.uniqueKey))).ToSQL()
-		result, err := tx.ExecContext(ctx, query)
+		query, _, _ := goqu.Update(tableApiObject).SetDialect(dialect).Set(newApiObject).
+			Where(goqu.And(goqu.C(fieldName).Eq(newApiObject.Name), goqu.C(fieldRepoKey).Eq(r.uniqueKey))).
+			ToSQL()
+		_, err = tx.ExecContext(ctx, query)
 		if err != nil {
-			return err
-		}
-		if num, _ := result.RowsAffected(); num == 0 {
-			return fmt.Errorf("no Rows are Updated %v", obj)
+			zap.S().Infow("Unexpected Error While Update ApiObject", "query", query)
+			return errors.WrapInternalError(err, "Unexpected Error While Update ApiObject")
 		}
 		return nil
 	})
@@ -181,13 +211,16 @@ func (r *MysqlClusterRepository[T]) Update(ctx context.Context, obj T) error {
 
 func (r *MysqlClusterRepository[T]) Delete(ctx context.Context, name string) error {
 	err := r.tr.WithTransaction(ctx, func(ctx context.Context, tx *sqlx.Tx, dialect goqu.SQLDialect) error {
-		query, _, _ := goqu.Delete(tableApiObject).SetDialect(dialect).Where(goqu.And(goqu.C(fieldName).Eq(name), goqu.C(fieldRepoKey).Eq(r.uniqueKey))).ToSQL()
+		query, _, _ := goqu.Delete(tableApiObject).SetDialect(dialect).
+			Where(goqu.And(goqu.C(fieldName).Eq(name), goqu.C(fieldRepoKey).Eq(r.uniqueKey))).
+			ToSQL()
 		result, err := tx.ExecContext(ctx, query)
 		if err != nil {
-			return err
+			zap.S().Infow("Unexpected Error While Delete ApiObject", "query", query)
+			return errors.WrapInternalError(err, "Unexpected Error While Delete ApiObject")
 		}
 		if num, _ := result.RowsAffected(); num == 0 {
-			return errors.NewNotFound(r.uniqueKey + "#" + name)
+			return errors.NewNotFound(fmt.Sprintf("%s/%s", r.uniqueKey, name))
 		}
 		return nil
 	})
@@ -199,14 +232,15 @@ func (r *MysqlClusterRepository[T]) Truncate(ctx context.Context) error {
 		query, _, _ := goqu.Delete(tableApiObject).SetDialect(dialect).Where(goqu.C(fieldRepoKey).Eq(r.uniqueKey)).ToSQL()
 		_, err := tx.ExecContext(ctx, query)
 		if err != nil {
-			return err
+			zap.S().Infow("Unexpected Error While Truncate Repository", "query", query)
+			return errors.WrapInternalError(err, "Unexpected Error While Truncate Repository")
 		}
 		return nil
 	})
 	return err
 }
 
-func (r *MysqlClusterRepository[T]) Info() *namespaces.GroupVersionKind {
+func (r *MysqlClusterRepository[T]) Info() *idl_common.GroupVersionKind {
 	return r.gvk
 }
 
@@ -215,7 +249,7 @@ type mysqlClusterRepositoryFactory[T domain_helper.Metadatable] struct {
 	tr         transactional.Transactional
 }
 
-func (f *mysqlClusterRepositoryFactory[T]) Create(gvk *namespaces.GroupVersionKind, uniqueKeySuffix string) ClusterRepository[T] {
+func (f *mysqlClusterRepositoryFactory[T]) Create(gvk *idl_common.GroupVersionKind, uniqueKeySuffix string) ClusterRepository[T] {
 	return NewMysqlClusterRepository(gvk, uniqueKeySuffix, f.objFactory, f.tr)
 }
 

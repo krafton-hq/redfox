@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/krafton-hq/red-fox/apis/idl_common"
-	"github.com/krafton-hq/red-fox/apis/namespaces"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
 	"google.golang.org/protobuf/proto"
 )
@@ -35,15 +34,15 @@ func containsLabel(metadata *idl_common.ObjectMeta, tkey, tvalue string) bool {
 
 type InMemoryClusterRepository[T domain_helper.Metadatable] struct {
 	local map[string]T
-	gvk   *namespaces.GroupVersionKind
+	gvk   *idl_common.GroupVersionKind
 
 	uniqueKey string
 }
 
-func NewInMemoryClusterRepository[T domain_helper.Metadatable](gvk *namespaces.GroupVersionKind, uniqueKeySuffix string) *InMemoryClusterRepository[T] {
+func NewInMemoryClusterRepository[T domain_helper.Metadatable](gvk *idl_common.GroupVersionKind, uniqueKeySuffix string) *InMemoryClusterRepository[T] {
 	return &InMemoryClusterRepository[T]{
 		local:     map[string]T{},
-		gvk:       proto.Clone(gvk).(*namespaces.GroupVersionKind),
+		gvk:       proto.Clone(gvk).(*idl_common.GroupVersionKind),
 		uniqueKey: fmt.Sprintf("%s/%s/%s", gvk.Group, gvk.Kind, uniqueKeySuffix),
 	}
 }
@@ -97,14 +96,14 @@ func (r *InMemoryClusterRepository[T]) Truncate(ctx context.Context) error {
 	return nil
 }
 
-func (r *InMemoryClusterRepository[T]) Info() *namespaces.GroupVersionKind {
-	return proto.Clone(r.gvk).(*namespaces.GroupVersionKind)
+func (r *InMemoryClusterRepository[T]) Info() *idl_common.GroupVersionKind {
+	return proto.Clone(r.gvk).(*idl_common.GroupVersionKind)
 }
 
 type InmemoryClusterRepositoryFactory[T domain_helper.Metadatable] struct {
 }
 
-func (f *InmemoryClusterRepositoryFactory[T]) Create(gvk *namespaces.GroupVersionKind, uniqueKeySuffix string) ClusterRepository[T] {
+func (f *InmemoryClusterRepositoryFactory[T]) Create(gvk *idl_common.GroupVersionKind, uniqueKeySuffix string) ClusterRepository[T] {
 	return NewInMemoryClusterRepository[T](gvk, uniqueKeySuffix)
 }
 

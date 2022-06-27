@@ -17,7 +17,7 @@ func (e *redFoxErrorFundamental) Error() string {
 	if e.origin == nil {
 		return e.message
 	} else {
-		return e.message + ": " + e.origin.Error()
+		return e.message + ", error: " + e.origin.Error()
 	}
 }
 
