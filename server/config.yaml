@@ -10,3 +10,9 @@ database:
   passwordRef:
     type: 0
     value: "mypassword"
+externalDns:
+  enabled: true
+  port: 9000
+  syncInterval: 10s
+  natIpDomain: srv.my-central.io
+  endpointDomain: srv.my-central.io

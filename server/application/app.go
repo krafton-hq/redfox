@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
@@ -21,6 +22,7 @@ import (
 	"github.com/krafton-hq/red-fox/server/application/configs"
 	"github.com/krafton-hq/red-fox/server/controllers/app_lifecycle_con"
 	"github.com/krafton-hq/red-fox/server/controllers/document_con"
+	"github.com/krafton-hq/red-fox/server/controllers/external_dns_con"
 	"github.com/krafton-hq/red-fox/server/controllers/namespace_con"
 	"github.com/krafton-hq/red-fox/server/pkg/database_helper"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
@@ -28,6 +30,7 @@ import (
 	"github.com/krafton-hq/red-fox/server/pkg/transactional"
 	"github.com/krafton-hq/red-fox/server/repositories/apiobject_repository"
 	"github.com/krafton-hq/red-fox/server/services/endpoint_service"
+	"github.com/krafton-hq/red-fox/server/services/external_dns_service"
 	"github.com/krafton-hq/red-fox/server/services/namespace_service"
 	"github.com/krafton-hq/red-fox/server/services/natip_service"
 	"github.com/krafton-hq/red-fox/server/services/service_helper"
@@ -48,6 +51,9 @@ type Application struct {
 	natIpController    *document_con.NatIpController
 	endpointController *document_con.EndpointController
 	appController      *app_lifecycle_con.GrpcController
+	extDnsController   *external_dns_con.Controller
+
+	extDnsService *external_dns_service.Service
 }
 
 func NewApplication(config *configs.RedFoxConfig) *Application {
@@ -106,7 +112,7 @@ func (a *Application) Init() error {
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
-		fmt.Printf("Grpc Server listen http://localhost:%d\n", port)
+		fmt.Printf("Grpc Server listen http://0.0.0.0:%d\n", port)
 		err = grpcServer.Serve(listener)
 		if err != nil {
 			log.Fatalf("failed to start grpc server: %v", err)
@@ -114,12 +120,28 @@ func (a *Application) Init() error {
 	}(a.config.Listeners.GrpcPort)
 
 	go func(port int32) {
-		fmt.Printf("Grpc Web Server listen http://localhost:%d\n", port)
+		fmt.Printf("Grpc Web Server listen http://0.0.0.0:%d\n", port)
 		err := httpServer.Listen(fmt.Sprintf(":%d", port))
 		if err != nil {
 			log.Fatalf("failed to start grpc-web server: %v", err)
 		}
 	}(a.config.Listeners.RestPort)
+
+	if a.config.ExternalDns.Enabled {
+		go a.extDnsService.Run(context.TODO())
+
+		go func(port int32) {
+			fmt.Printf("External-Dns TCP Server listen tcp://0.0.0.0:%d\n", port)
+			ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+			if err != nil {
+				log.Fatalf("failed to Listen External-Dns TCP server: %v", err)
+			}
+			err = a.extDnsController.Start(ln)
+			if err != nil {
+				log.Fatalf("failed to Start External-Dns TCP server: %v", err)
+			}
+		}(a.config.ExternalDns.Port)
+	}
 
 	return nil
 }
@@ -177,6 +199,16 @@ func (a *Application) initInternal() error {
 	a.natIpController = document_con.NewNatIpDocController(natIpService)
 	a.endpointController = document_con.NewEndpointController(endpointService)
 	a.appController = app_lifecycle_con.NewAppLifecycle()
+
+	if a.config.ExternalDns.Enabled {
+		duration, err := time.ParseDuration(a.config.ExternalDns.SyncInterval)
+		if err != nil {
+			return err
+		}
+
+		a.extDnsService = external_dns_service.NewService(a.config.ExternalDns.NatIpDomain, a.config.ExternalDns.EndpointDomain, duration, natIpService)
+		a.extDnsController = external_dns_con.NewController(a.extDnsService)
+	}
 
 	err := nsService.Init(context.TODO())
 	return err
