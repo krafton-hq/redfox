@@ -32,6 +32,7 @@ jobs:
           go-version: '1.18'
       - name: Build
         run: |
+          set -eux
           make build VERSION=$(yq eval '.metadata.name' version.yaml)
         working-directory: server
 
@@ -47,9 +48,12 @@ jobs:
 
       - name: Package
         run: |
+          set -eux
           docker build -t "public.ecr.aws/sbx/red-fox/server:$(yq eval '.metadata.name' version.yaml)" .
         working-directory: server
       - name: Push
         run: |
+          set -eux
           export ECR_IMAGE_TAG="public.ecr.aws/sbx/red-fox/server:$(yq eval '.metadata.name' version.yaml)"
           docker push $ECR_IMAGE_TAG
+        working-directory: server
