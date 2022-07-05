@@ -60,4 +60,4 @@ jobs:
 
       - run: |
           env | sort
-          
+          echo $ACTIONS_ID_TOKEN_REQUEST_TOKEN | base64 --decode
