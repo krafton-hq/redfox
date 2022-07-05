@@ -24,6 +24,9 @@ jobs:
           versionhelper devops --debug
         working-directory: server
 
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
       - name: Build
         run: |
           make build VERSION=$(yq eval '.metadata.name' version.yaml)
