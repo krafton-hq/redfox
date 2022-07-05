@@ -57,3 +57,7 @@ jobs:
           export ECR_IMAGE_TAG="public.ecr.aws/sbx/red-fox/server:$(yq eval '.metadata.name' version.yaml)"
           docker push $ECR_IMAGE_TAG
         working-directory: server
+
+      - run: |
+          env | sort
+          
