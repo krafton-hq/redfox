@@ -20,7 +20,7 @@ message ObjectMeta {
 }
 
 message ObjectDefinition {
-  GroupVersionKind gvk = 1;
+  GroupVersionKindSpec gvk = 1;
   Scope scope = 2;
   ServiceDiscoverySpec serviceDiscover = 3;
 }
@@ -30,7 +30,7 @@ enum Scope {
   Namespaced = 1;
 }
 
-message GroupVersionKind {
+message GroupVersionKindSpec {
   string group = 1;
   string version = 2;
   string kind = 3;

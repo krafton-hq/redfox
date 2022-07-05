@@ -34,15 +34,15 @@ func containsLabel(metadata *idl_common.ObjectMeta, tkey, tvalue string) bool {
 
 type InMemoryClusterRepository[T domain_helper.Metadatable] struct {
 	local map[string]T
-	gvk   *idl_common.GroupVersionKind
+	gvk   *idl_common.GroupVersionKindSpec
 
 	uniqueKey string
 }
 
-func NewInMemoryClusterRepository[T domain_helper.Metadatable](gvk *idl_common.GroupVersionKind, uniqueKeySuffix string) *InMemoryClusterRepository[T] {
+func NewInMemoryClusterRepository[T domain_helper.Metadatable](gvk *idl_common.GroupVersionKindSpec, uniqueKeySuffix string) *InMemoryClusterRepository[T] {
 	return &InMemoryClusterRepository[T]{
 		local:     map[string]T{},
-		gvk:       proto.Clone(gvk).(*idl_common.GroupVersionKind),
+		gvk:       proto.Clone(gvk).(*idl_common.GroupVersionKindSpec),
 		uniqueKey: fmt.Sprintf("%s/%s/%s", gvk.Group, gvk.Kind, uniqueKeySuffix),
 	}
 }
@@ -96,14 +96,14 @@ func (r *InMemoryClusterRepository[T]) Truncate(ctx context.Context) error {
 	return nil
 }
 
-func (r *InMemoryClusterRepository[T]) Info() *idl_common.GroupVersionKind {
-	return proto.Clone(r.gvk).(*idl_common.GroupVersionKind)
+func (r *InMemoryClusterRepository[T]) Info() *idl_common.GroupVersionKindSpec {
+	return proto.Clone(r.gvk).(*idl_common.GroupVersionKindSpec)
 }
 
 type InmemoryClusterRepositoryFactory[T domain_helper.Metadatable] struct {
 }
 
-func (f *InmemoryClusterRepositoryFactory[T]) Create(gvk *idl_common.GroupVersionKind, uniqueKeySuffix string) ClusterRepository[T] {
+func (f *InmemoryClusterRepositoryFactory[T]) Create(gvk *idl_common.GroupVersionKindSpec, uniqueKeySuffix string) ClusterRepository[T] {
 	return NewInMemoryClusterRepository[T](gvk, uniqueKeySuffix)
 }
 

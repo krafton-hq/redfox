@@ -13,12 +13,12 @@ import (
 
 type GenericNamespacedRepository[T domain_helper.Metadatable] struct {
 	repos map[string]ClusterRepository[T]
-	gvk   *idl_common.GroupVersionKind
+	gvk   *idl_common.GroupVersionKindSpec
 
 	repoFactory ClusterRepositoryFactory[T]
 }
 
-func NewGenericNamespacedRepository[T domain_helper.Metadatable](gvk *idl_common.GroupVersionKind, repoFactory ClusterRepositoryFactory[T]) *GenericNamespacedRepository[T] {
+func NewGenericNamespacedRepository[T domain_helper.Metadatable](gvk *idl_common.GroupVersionKindSpec, repoFactory ClusterRepositoryFactory[T]) *GenericNamespacedRepository[T] {
 	return &GenericNamespacedRepository[T]{
 		repos:       map[string]ClusterRepository[T]{},
 		gvk:         gvk,
@@ -95,8 +95,8 @@ func (r *GenericNamespacedRepository[T]) Truncate(ctx context.Context) error {
 	return nil
 }
 
-func (r *GenericNamespacedRepository[T]) Info() *idl_common.GroupVersionKind {
-	return proto.Clone(r.gvk).(*idl_common.GroupVersionKind)
+func (r *GenericNamespacedRepository[T]) Info() *idl_common.GroupVersionKindSpec {
+	return proto.Clone(r.gvk).(*idl_common.GroupVersionKindSpec)
 }
 
 func (r *GenericNamespacedRepository[T]) EnableNamespace(ctx context.Context, namespace string) bool {
