@@ -10,6 +10,7 @@ import (
 	"github.com/krafton-hq/red-fox/server/application"
 	"github.com/krafton-hq/red-fox/server/application/configs"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 	"sigs.k8s.io/yaml"
 )
 
@@ -26,6 +27,8 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.Version = application.Version
+
 	var configPath string
 	var debug bool
 
@@ -39,11 +42,12 @@ func init() {
 		if err != nil {
 			return err
 		}
-
+		zap.S().Debugf("Config Path is Resolved from %s to %s", configPath, absPath)
 		buf, err := ioutil.ReadFile(absPath)
 		if err != nil {
 			return err
 		}
+
 		config := &configs.RedFoxConfig{}
 		err = yaml.Unmarshal(buf, config)
 		if err != nil {

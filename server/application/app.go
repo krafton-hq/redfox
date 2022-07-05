@@ -42,6 +42,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+const Version = "0.0.0-dev-build"
+
 type Application struct {
 	config *configs.RedFoxConfig
 

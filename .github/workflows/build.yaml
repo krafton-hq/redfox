@@ -1,0 +1,48 @@
+name: build
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Generate Version
+        run: |
+          set -euox pipefail
+          curl -L https://github.com/krafton-hq/version-helper/releases/download/v0.2.1/versionhelper_v0.2.1_linux_amd64.tar.gz --output versionhelper.tar.gz
+          tar -xzf versionhelper.tar.gz
+          sudo mv versionhelper /usr/local/bin/versionhelper
+          rm versionhelper.tar.gz
+          
+          versionhelper devops --debug
+        working-directory: server
+
+      - name: Build
+        run: |
+          make build VERSION=$(yq eval '.metadata.name' version.yaml)
+        working-directory: server
+
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-east-1
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry-type: 'public'
+
+      - name: Package
+        run: |
+          docker build -t "public.ecr.aws/sbx/red-fox/server:$(yq eval '.metadata.name' version.yaml)" .
+        working-directory: server
+      - name: Push
+        run: |
+          export ECR_IMAGE_TAG="public.ecr.aws/sbx/red-fox/server:$(yq eval '.metadata.name' version.yaml)"
+          docker push $ECR_IMAGE_TAG
