@@ -32,6 +32,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: us-east-1
+          role-to-assume: arn:aws:iam::768255055847:role/github-cloud-krafton-hq-gha-ci
       - name: Login to Amazon ECR Public
         id: login-ecr-public
         uses: aws-actions/amazon-ecr-login@v1
