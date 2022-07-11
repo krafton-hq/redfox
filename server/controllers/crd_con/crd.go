@@ -2,6 +2,7 @@ package crd_con
 
 import (
 	"context"
+	"strings"
 
 	"github.com/krafton-hq/red-fox/apis/crds"
 	"github.com/krafton-hq/red-fox/apis/idl_common"
@@ -104,13 +105,13 @@ func (c *Controller) DeleteCustomResourceDefinition(ctx context.Context, req *id
 		return utils.CommonResNotEmpty("name"), nil
 	}
 
-	kind, group, err := domain_helper.ParseGvkName(req.Name)
-	if req.Name == "" {
+	lowerKind, group, err := domain_helper.ParseGvkName(req.Name)
+	if err != nil {
 		return utils.CommonResWithErrorTypes(err), nil
 	}
 
 	for _, spec := range domain_helper.GetSystemGvks() {
-		if spec.Kind == kind && spec.Group == group {
+		if strings.EqualFold(spec.Kind, lowerKind) && spec.Group == group {
 			return utils.InvalidArguments(errors.NewInvalidArguments("User Cannot Delete System Gvk")), nil
 		}
 	}

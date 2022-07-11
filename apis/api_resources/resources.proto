@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package redfox.api.api_resources;
+
+import "idl_common/types.proto";
+
+option go_package = "github.com/krafton-hq/red-fox/apis/api_resources";
+
+service CustomDocumentDefinitionServer {
+  rpc ListApiResources(idl_common.CommonReq) returns (ListApiResourcesRes) {}
+}
+
+message ListApiResourcesRes {
+  idl_common.CommonRes commonRes = 1;
+  repeated  idl_common.ApiResourceSpec apiResources = 2;
+}

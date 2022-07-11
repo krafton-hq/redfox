@@ -36,6 +36,13 @@ func NewManager(customClusterRepoFactory apiobject_repository.ClusterRepositoryF
 	}
 }
 
+func (m *Manager) GetClusterRepositoryMetadatas() []*idl_common.GroupVersionKindSpec {
+	return []*idl_common.GroupVersionKindSpec{
+		m.namespaceRepository.Info(),
+		m.crdRepository.Info(),
+	}
+}
+
 func (m *Manager) GetNamespacedRepositoryMetadatas() []apiobject_repository.NamespacedRepositoryMetadata {
 	var metadatas []apiobject_repository.NamespacedRepositoryMetadata
 	for _, repo := range m.customRepositories {

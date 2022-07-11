@@ -16,11 +16,13 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	log_helper "github.com/krafton-hq/golib/log-helper"
+	"github.com/krafton-hq/red-fox/apis/api_resources"
 	"github.com/krafton-hq/red-fox/apis/app_lifecycle"
 	"github.com/krafton-hq/red-fox/apis/crds"
 	"github.com/krafton-hq/red-fox/apis/documents"
 	"github.com/krafton-hq/red-fox/apis/namespaces"
 	"github.com/krafton-hq/red-fox/server/application/configs"
+	"github.com/krafton-hq/red-fox/server/controllers/api_resources_con"
 	"github.com/krafton-hq/red-fox/server/controllers/app_lifecycle_con"
 	"github.com/krafton-hq/red-fox/server/controllers/crd_con"
 	"github.com/krafton-hq/red-fox/server/controllers/document_con"
@@ -53,12 +55,13 @@ type Application struct {
 
 	grpcServer *grpc.Server
 
-	nsController       *namespace_con.Controller
-	crdController      *crd_con.Controller
-	natIpController    *document_con.NatIpController
-	endpointController *document_con.EndpointController
-	appController      *app_lifecycle_con.GrpcController
-	extDnsController   *external_dns_con.Controller
+	nsController           *namespace_con.Controller
+	crdController          *crd_con.Controller
+	natIpController        *document_con.NatIpController
+	endpointController     *document_con.EndpointController
+	apiResourcesController *api_resources_con.Controller
+	appController          *app_lifecycle_con.GrpcController
+	extDnsController       *external_dns_con.Controller
 
 	extDnsService *external_dns_service.Service
 }
@@ -91,6 +94,7 @@ func (a *Application) Init() error {
 	crds.RegisterCustomDocumentDefinitionServerServer(grpcServer, a.crdController)
 	documents.RegisterNatIpServerServer(grpcServer, a.natIpController)
 	documents.RegisterEndpointServerServer(grpcServer, a.endpointController)
+	api_resources.RegisterCustomDocumentDefinitionServerServer(grpcServer, a.apiResourcesController)
 
 	for name := range grpcServer.GetServiceInfo() {
 		zap.S().Infow("Registered gRpc Service", "name", name)
@@ -216,6 +220,7 @@ func (a *Application) initInternal() error {
 	a.natIpController = document_con.NewNatIpDocController(natIpService)
 	a.endpointController = document_con.NewEndpointController(endpointService)
 	a.appController = app_lifecycle_con.NewAppLifecycle()
+	a.apiResourcesController = api_resources_con.NewController(repoManager)
 
 	if a.config.ExternalDns.Enabled {
 		duration, err := time.ParseDuration(a.config.ExternalDns.SyncInterval)
