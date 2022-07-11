@@ -17,10 +17,12 @@ import (
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	log_helper "github.com/krafton-hq/golib/log-helper"
 	"github.com/krafton-hq/red-fox/apis/app_lifecycle"
+	"github.com/krafton-hq/red-fox/apis/crds"
 	"github.com/krafton-hq/red-fox/apis/documents"
 	"github.com/krafton-hq/red-fox/apis/namespaces"
 	"github.com/krafton-hq/red-fox/server/application/configs"
 	"github.com/krafton-hq/red-fox/server/controllers/app_lifecycle_con"
+	"github.com/krafton-hq/red-fox/server/controllers/crd_con"
 	"github.com/krafton-hq/red-fox/server/controllers/document_con"
 	"github.com/krafton-hq/red-fox/server/controllers/external_dns_con"
 	"github.com/krafton-hq/red-fox/server/controllers/namespace_con"
@@ -29,6 +31,8 @@ import (
 	"github.com/krafton-hq/red-fox/server/pkg/errors"
 	"github.com/krafton-hq/red-fox/server/pkg/transactional"
 	"github.com/krafton-hq/red-fox/server/repositories/apiobject_repository"
+	"github.com/krafton-hq/red-fox/server/repositories/repository_manager"
+	"github.com/krafton-hq/red-fox/server/services/crd_service"
 	"github.com/krafton-hq/red-fox/server/services/endpoint_service"
 	"github.com/krafton-hq/red-fox/server/services/external_dns_service"
 	"github.com/krafton-hq/red-fox/server/services/namespace_service"
@@ -50,6 +54,7 @@ type Application struct {
 	grpcServer *grpc.Server
 
 	nsController       *namespace_con.Controller
+	crdController      *crd_con.Controller
 	natIpController    *document_con.NatIpController
 	endpointController *document_con.EndpointController
 	appController      *app_lifecycle_con.GrpcController
@@ -83,6 +88,7 @@ func (a *Application) Init() error {
 
 	app_lifecycle.RegisterApplicationLifecycleServer(grpcServer, a.appController)
 	namespaces.RegisterNamespaceServerServer(grpcServer, a.nsController)
+	crds.RegisterCustomDocumentDefinitionServerServer(grpcServer, a.crdController)
 	documents.RegisterNatIpServerServer(grpcServer, a.natIpController)
 	documents.RegisterEndpointServerServer(grpcServer, a.endpointController)
 
@@ -149,8 +155,8 @@ func (a *Application) Init() error {
 }
 
 func (a *Application) initInternal() error {
-	var tr transactional.Transactional
 
+	var tr transactional.Transactional
 	switch a.config.Database.Type {
 	case configs.DatabaseType_Inmemory:
 		tr = transactional.NewNoop()
@@ -170,34 +176,43 @@ func (a *Application) initInternal() error {
 	}
 
 	var nsRepo apiobject_repository.ClusterRepository[*namespaces.Namespace]
+	var crdRepo apiobject_repository.ClusterRepository[*crds.CustomResourceDefinition]
 	var natIpRepo apiobject_repository.NamespacedRepository[*documents.NatIp]
 	var endpointRepo apiobject_repository.NamespacedRepository[*documents.Endpoint]
+	var customDocRepoFactory apiobject_repository.ClusterRepositoryFactory[*documents.CustomDocument]
 
 	switch a.config.Database.Type {
 	case configs.DatabaseType_Inmemory:
 		nsRepo = apiobject_repository.NewInMemoryClusterRepository[*namespaces.Namespace](domain_helper.NamespaceGvk, apiobject_repository.DefaultSystemNamespace)
+		crdRepo = apiobject_repository.NewInMemoryClusterRepository[*crds.CustomResourceDefinition](domain_helper.CrdGvk, apiobject_repository.DefaultSystemNamespace)
 		natIpRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.NatIp](domain_helper.NatIpGvk, apiobject_repository.NewInmemoryClusterRepositoryFactory[*documents.NatIp]())
 		endpointRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.Endpoint](domain_helper.EndpointGvk, apiobject_repository.NewInmemoryClusterRepositoryFactory[*documents.Endpoint]())
+		customDocRepoFactory = apiobject_repository.NewInmemoryClusterRepositoryFactory[*documents.CustomDocument]()
 		break
 	case configs.DatabaseType_Mysql:
 		nsRepo = apiobject_repository.NewMysqlClusterRepository[*namespaces.Namespace](domain_helper.NamespaceGvk, apiobject_repository.DefaultSystemNamespace, domain_helper.NewNamespaceFactory(), tr)
+		crdRepo = apiobject_repository.NewMysqlClusterRepository[*crds.CustomResourceDefinition](domain_helper.CrdGvk, apiobject_repository.DefaultSystemNamespace, domain_helper.NewCrdFactory(), tr)
 		natIpRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.NatIp](domain_helper.NatIpGvk, apiobject_repository.NewMysqlClusterRepositoryFactory[*documents.NatIp](domain_helper.NewNatIpFactory(), tr))
 		endpointRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.Endpoint](domain_helper.EndpointGvk, apiobject_repository.NewMysqlClusterRepositoryFactory[*documents.Endpoint](domain_helper.NewEndpointFactory(), tr))
+		customDocRepoFactory = apiobject_repository.NewMysqlClusterRepositoryFactory[*documents.CustomDocument](domain_helper.NewCustomDocumentFactory(), tr)
 		break
 	default:
 		return errors.NewErrorf("Unknown Database Type: %s", a.config.Database.Type.String())
 	}
 
-	var namespacedRepos = []apiobject_repository.NamespacedRepositoryMetadata{natIpRepo, endpointRepo}
 	var natIpService service_helper.NamespacedService[*documents.NatIp] = natip_service.NewService(natIpRepo)
 	var endpointService service_helper.NamespacedService[*documents.Endpoint] = endpoint_service.NewService(endpointRepo)
-	var nsService service_helper.ClusterService[*namespaces.Namespace] = namespace_service.NewService(nsRepo, namespacedRepos)
+	repoManager := repository_manager.NewManager(customDocRepoFactory, natIpRepo, endpointRepo, nsRepo, crdRepo)
+	var nsService service_helper.ClusterService[*namespaces.Namespace] = namespace_service.NewService(nsRepo, repoManager)
+	var crdService service_helper.ClusterService[*crds.CustomResourceDefinition] = crd_service.NewService(crdRepo, repoManager)
 
 	nsService = service_helper.NewTransactionalClusterService[*namespaces.Namespace](nsService, tr)
+	crdService = service_helper.NewTransactionalClusterService[*crds.CustomResourceDefinition](crdService, tr)
 	natIpService = service_helper.NewTransactionalNamespacedService[*documents.NatIp](natIpService, tr)
 	endpointService = service_helper.NewTransactionalNamespacedService[*documents.Endpoint](endpointService, tr)
 
 	a.nsController = namespace_con.NewController(nsService)
+	a.crdController = crd_con.NewController(crdService)
 	a.natIpController = document_con.NewNatIpDocController(natIpService)
 	a.endpointController = document_con.NewEndpointController(endpointService)
 	a.appController = app_lifecycle_con.NewAppLifecycle()

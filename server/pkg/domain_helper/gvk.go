@@ -25,3 +25,7 @@ func ParseGvkName(name string) (kind string, group string, err error) {
 	}
 	return
 }
+
+func EqualsGvk(g1 *idl_common.GroupVersionKindSpec, g2 *idl_common.GroupVersionKindSpec) bool {
+	return g1.Group == g2.Group && g1.Version == g2.Version && g1.Kind == g2.Kind
+}

@@ -47,6 +47,10 @@ func IsKind(kind string) []string {
 	return nil
 }
 
+func IsQualifiedName(value string) []string {
+	return validation.IsQualifiedName(value)
+}
+
 func IsAnnotationName(value string) []string {
 	return validation.IsQualifiedName(value)
 }

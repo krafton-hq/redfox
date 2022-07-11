@@ -63,6 +63,9 @@ func (c *NatIpController) CreateNatIp(ctx context.Context, req *documents.Desire
 	if err := domain_helper.ValidationMetadatable(req.NatIp); err != nil {
 		return utils.CommonResWithErrorTypes(err), nil
 	}
+	if err := domain_helper.ValidationDiscoverableName(req.NatIp); err != nil {
+		return utils.CommonResWithErrorTypes(err), nil
+	}
 	if req.NatIp.Metadata.Namespace == "" {
 		return utils.CommonResNotEmpty("namespace"), nil
 	}
@@ -80,6 +83,9 @@ func (c *NatIpController) CreateNatIp(ctx context.Context, req *documents.Desire
 
 func (c *NatIpController) UpdateNatIp(ctx context.Context, req *documents.DesiredNatIpReq) (*idl_common.CommonRes, error) {
 	if err := domain_helper.ValidationMetadatable(req.NatIp); err != nil {
+		return utils.CommonResWithErrorTypes(err), nil
+	}
+	if err := domain_helper.ValidationDiscoverableName(req.NatIp); err != nil {
 		return utils.CommonResWithErrorTypes(err), nil
 	}
 	if req.NatIp.Metadata.Namespace == "" {

@@ -1,8 +1,8 @@
 package domain_helper
 
 import (
+	"github.com/krafton-hq/red-fox/apis/crds"
 	"github.com/krafton-hq/red-fox/apis/documents"
-	gvks "github.com/krafton-hq/red-fox/apis/gvks"
 	"github.com/krafton-hq/red-fox/apis/idl_common"
 	"github.com/krafton-hq/red-fox/apis/namespaces"
 	"google.golang.org/protobuf/proto"
@@ -59,21 +59,32 @@ func NewEndpointFactory() MetadatableFactory[*documents.Endpoint] {
 	return &endpointFactory{}
 }
 
-var GvkGvk = &idl_common.GroupVersionKindSpec{
+var CrdGvk = &idl_common.GroupVersionKindSpec{
 	Group:   "red-fox.sbx-central.io",
 	Version: "v1alpha1",
-	Kind:    "GroupVersionKind",
+	Kind:    "CustomResourceDefinition",
 }
 
 type gvkFactory struct {
 }
 
-func (f *gvkFactory) Create() *gvks.GroupVersionKind {
-	return &gvks.GroupVersionKind{}
+func (f *gvkFactory) Create() *crds.CustomResourceDefinition {
+	return &crds.CustomResourceDefinition{}
 }
 
-func NewGvkFactory() MetadatableFactory[*gvks.GroupVersionKind] {
+func NewCrdFactory() MetadatableFactory[*crds.CustomResourceDefinition] {
 	return &gvkFactory{}
+}
+
+type customDocFactory struct {
+}
+
+func (f *customDocFactory) Create() *documents.CustomDocument {
+	return &documents.CustomDocument{}
+}
+
+func NewCustomDocumentFactory() MetadatableFactory[*documents.CustomDocument] {
+	return &customDocFactory{}
 }
 
 func GetSystemGvks() []*idl_common.GroupVersionKindSpec {
@@ -81,6 +92,15 @@ func GetSystemGvks() []*idl_common.GroupVersionKindSpec {
 		proto.Clone(NatIpGvk).(*idl_common.GroupVersionKindSpec),
 		proto.Clone(NamespaceGvk).(*idl_common.GroupVersionKindSpec),
 		proto.Clone(EndpointGvk).(*idl_common.GroupVersionKindSpec),
-		proto.Clone(GvkGvk).(*idl_common.GroupVersionKindSpec),
+		proto.Clone(CrdGvk).(*idl_common.GroupVersionKindSpec),
 	}
+}
+
+func IsSystemGvk(gvk *idl_common.GroupVersionKindSpec) bool {
+	for _, systemGvk := range GetSystemGvks() {
+		if EqualsGvk(gvk, systemGvk) {
+			return true
+		}
+	}
+	return false
 }

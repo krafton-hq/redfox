@@ -56,6 +56,9 @@ func (c *Controller) CreateNamespace(ctx context.Context, req *namespaces.Create
 	if err := domain_helper.ValidationMetadatable(req.Namespace); err != nil {
 		return utils.CommonResWithErrorTypes(err), nil
 	}
+	if err := domain_helper.ValidationDiscoverableName(req.Namespace); err != nil {
+		return utils.CommonResWithErrorTypes(err), nil
+	}
 	if err := domain_helper.ValidationNamespaceSpec(req.Namespace.Spec); err != nil {
 		return utils.CommonResWithErrorTypes(err), nil
 	}
@@ -71,6 +74,9 @@ func (c *Controller) CreateNamespace(ctx context.Context, req *namespaces.Create
 func (c *Controller) UpdateNamespace(ctx context.Context, req *namespaces.UpdateNamespaceReq) (*idl_common.CommonRes, error) {
 	if err := domain_helper.ValidationMetadatable(req.Namespace); err != nil {
 		return utils.InvalidArguments(err), nil
+	}
+	if err := domain_helper.ValidationDiscoverableName(req.Namespace); err != nil {
+		return utils.CommonResWithErrorTypes(err), nil
 	}
 	if err := domain_helper.ValidationNamespaceSpec(req.Namespace.Spec); err != nil {
 		return utils.CommonResWithErrorTypes(err), nil
