@@ -2,13 +2,13 @@ listeners:
   grpcPort: 8081
   restPort: 8080
 database:
-  type: 1
+  type: Mysql
   url: "mysql://localhost:3306/red_fox"
   usernameRef:
-    type: 0
+    type: Static
     value: "root"
   passwordRef:
-    type: 0
+    type: Static
     value: "mypassword"
 externalDns:
   enabled: true

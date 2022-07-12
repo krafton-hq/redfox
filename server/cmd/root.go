@@ -5,12 +5,14 @@ import (
 	"os"
 	"sync"
 
+	"github.com/golang/protobuf/jsonpb"
 	log_helper "github.com/krafton-hq/golib/log-helper"
 	path_utils "github.com/krafton-hq/golib/path-utils"
 	"github.com/krafton-hq/red-fox/server/application"
 	"github.com/krafton-hq/red-fox/server/application/configs"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"k8s.io/apimachinery/pkg/util/json"
 	"sigs.k8s.io/yaml"
 )
 
@@ -48,8 +50,19 @@ func init() {
 			return err
 		}
 
+		// Convert Yaml to Json
+		var body interface{}
+		err = yaml.Unmarshal(buf, &body)
+		if err != nil {
+			return err
+		}
+		jsonBuf, err := json.Marshal(body)
+		if err != nil {
+			return err
+		}
+
 		config := &configs.RedFoxConfig{}
-		err = yaml.Unmarshal(buf, config)
+		err = jsonpb.UnmarshalString(string(jsonBuf), config)
 		if err != nil {
 			return err
 		}
