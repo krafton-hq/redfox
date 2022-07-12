@@ -1,4 +1,4 @@
-package service_helper
+package service_decorator
 
 import (
 	"context"
@@ -6,15 +6,16 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 	"github.com/krafton-hq/red-fox/server/pkg/transactional"
+	"github.com/krafton-hq/red-fox/server/services/services"
 )
 
 type TransactionalClusterService[T any] struct {
-	service ClusterService[T]
+	service services.ClusterService[T]
 
 	tr transactional.Transactional
 }
 
-func NewTransactionalClusterService[T any](service ClusterService[T], tr transactional.Transactional) ClusterService[T] {
+func NewTransactionalClusterService[T any](service services.ClusterService[T], tr transactional.Transactional) services.ClusterService[T] {
 	return &TransactionalClusterService[T]{service: service, tr: tr}
 }
 

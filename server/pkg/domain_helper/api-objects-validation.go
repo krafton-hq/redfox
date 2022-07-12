@@ -15,6 +15,8 @@ const qualifiedNameMaxLength int = 253
 
 const fieldName = "metadata.name"
 const fieldLabelKey = "metadata.label[key]"
+const fieldAnnotation = "metadata.annotations"
+const fieldAnnotationKey = "metadata.annotations[key]"
 
 func ValidationMetadatable(m Metadatable) error {
 	if m == nil {
@@ -41,11 +43,11 @@ func ValidationMetadatable(m Metadatable) error {
 
 	for key := range metadata.Annotations {
 		if errs := validation.IsAnnotationName(key); len(errs) > 0 {
-			return errors.NewInvalidField(fieldLabelKey, fmt.Sprintf("%v", errs), key)
+			return errors.NewInvalidField(fieldAnnotationKey, fmt.Sprintf("%v", errs), key)
 		}
 	}
 	if errs := validation.IsValidAnnotationsSize(metadata.Annotations); len(errs) > 0 {
-		return errors.NewInvalidField("metadata.annotations", fmt.Sprintf("%v", errs), fmt.Sprintf("%v", metadata.Annotations))
+		return errors.NewInvalidField(fieldAnnotation, fmt.Sprintf("%v", errs), fmt.Sprintf("%v", metadata.Annotations))
 	}
 	return nil
 }

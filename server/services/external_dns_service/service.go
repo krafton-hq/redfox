@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/krafton-hq/red-fox/apis/documents"
-	"github.com/krafton-hq/red-fox/server/services/service_helper"
+	"github.com/krafton-hq/red-fox/server/services/services"
 	"github.com/samber/lo"
 	"go.uber.org/zap"
 	"sigs.k8s.io/external-dns/endpoint"
@@ -24,10 +24,10 @@ type Service struct {
 	interval  time.Duration
 	nextRunAt time.Time
 
-	natIpService service_helper.NamespacedService[*documents.NatIp]
+	natIpService services.NamespacedService[*documents.NatIp]
 }
 
-func NewService(natIpDomain, endpointDomain string, interval time.Duration, natIpService service_helper.NamespacedService[*documents.NatIp]) *Service {
+func NewService(natIpDomain, endpointDomain string, interval time.Duration, natIpService services.NamespacedService[*documents.NatIp]) *Service {
 	zap.S().Infow("Initialize External-Dns Service with", "natIpDomain", natIpDomain, "interval", interval.String())
 
 	return &Service{

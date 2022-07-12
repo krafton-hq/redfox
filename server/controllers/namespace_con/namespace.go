@@ -7,16 +7,16 @@ import (
 	"github.com/krafton-hq/red-fox/apis/namespaces"
 	"github.com/krafton-hq/red-fox/server/controllers/utils"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
-	"github.com/krafton-hq/red-fox/server/services/service_helper"
+	"github.com/krafton-hq/red-fox/server/services/services"
 )
 
 type Controller struct {
 	namespaces.UnimplementedNamespaceServerServer
 
-	service service_helper.ClusterService[*namespaces.Namespace]
+	service services.ClusterService[*namespaces.Namespace]
 }
 
-func NewController(service service_helper.ClusterService[*namespaces.Namespace]) *Controller {
+func NewController(service services.ClusterService[*namespaces.Namespace]) *Controller {
 	return &Controller{service: service}
 }
 

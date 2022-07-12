@@ -23,15 +23,15 @@ message CustomDocument {
 
 message GetCustomDocumentRes {
   idl_common.CommonRes commonRes = 1;
-  CustomDocument endpoint = 2;
+  CustomDocument document = 2;
 }
 
 message ListCustomDocumentsRes {
   idl_common.CommonRes commonRes = 1;
-  repeated CustomDocument endpoints = 2;
+  repeated CustomDocument documents = 2;
 }
 
 message DesiredCustomDocumentReq {
   idl_common.CommonReq commonRes = 1;
-  CustomDocument endpoint = 2;
+  CustomDocument document = 2;
 }

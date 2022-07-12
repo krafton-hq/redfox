@@ -9,16 +9,16 @@ import (
 	"github.com/krafton-hq/red-fox/server/controllers/utils"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
 	"github.com/krafton-hq/red-fox/server/pkg/errors"
-	"github.com/krafton-hq/red-fox/server/services/service_helper"
+	"github.com/krafton-hq/red-fox/server/services/services"
 )
 
 type Controller struct {
 	crds.UnimplementedCustomDocumentDefinitionServerServer
 
-	service service_helper.ClusterService[*crds.CustomResourceDefinition]
+	service services.ClusterService[*crds.CustomResourceDefinition]
 }
 
-func NewController(service service_helper.ClusterService[*crds.CustomResourceDefinition]) *Controller {
+func NewController(service services.ClusterService[*crds.CustomResourceDefinition]) *Controller {
 	return &Controller{service: service}
 }
 

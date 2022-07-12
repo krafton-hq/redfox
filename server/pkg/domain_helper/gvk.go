@@ -13,17 +13,27 @@ func GetGvkName(gvk *idl_common.GroupVersionKindSpec) string {
 }
 
 func ParseGvkName(name string) (lowerKind string, group string, err error) {
-	args := strings.SplitN(name, ".", 1)
-	if len(args) < 1 {
+	lowerKind, group, found := strings.Cut(name, ".")
+	if !found {
 		return "", "", errors.NewInvalidArguments("GvkName should have at least 1 dot '.'")
 	}
-	lowerKind = args[0]
-	group = args[1]
 
 	if errs := validation.IsGroup(group); len(errs) > 0 {
 		return "", "", errors.NewInvalidField("GvkName", "RFC1123 Dns Label/Version", lowerKind)
 	}
 	return
+}
+
+func CreateGvkFromMetadatable(m Metadatable) (*idl_common.GroupVersionKindSpec, error) {
+	group, version, found := strings.Cut(m.GetApiVersion(), "/")
+	if !found {
+		return nil, errors.NewInvalidField("apiVersion", "Should have one '/'", m.GetApiVersion())
+	}
+	return &idl_common.GroupVersionKindSpec{
+		Group:   group,
+		Version: version,
+		Kind:    m.GetKind(),
+	}, nil
 }
 
 func EqualsGvk(g1 *idl_common.GroupVersionKindSpec, g2 *idl_common.GroupVersionKindSpec) bool {

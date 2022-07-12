@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -35,14 +36,18 @@ import (
 	"github.com/krafton-hq/red-fox/server/repositories/apiobject_repository"
 	"github.com/krafton-hq/red-fox/server/repositories/repository_manager"
 	"github.com/krafton-hq/red-fox/server/services/crd_service"
+	"github.com/krafton-hq/red-fox/server/services/custom_document_service"
 	"github.com/krafton-hq/red-fox/server/services/endpoint_service"
 	"github.com/krafton-hq/red-fox/server/services/external_dns_service"
 	"github.com/krafton-hq/red-fox/server/services/namespace_service"
 	"github.com/krafton-hq/red-fox/server/services/natip_service"
-	"github.com/krafton-hq/red-fox/server/services/service_helper"
+	"github.com/krafton-hq/red-fox/server/services/service_decorator"
+	"github.com/krafton-hq/red-fox/server/services/services"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	_ "github.com/go-sql-driver/mysql"
@@ -59,6 +64,7 @@ type Application struct {
 	crdController          *crd_con.Controller
 	natIpController        *document_con.NatIpController
 	endpointController     *document_con.EndpointController
+	customDocController    *document_con.CustomDocumentController
 	apiResourcesController *api_resources_con.Controller
 	appController          *app_lifecycle_con.GrpcController
 	extDnsController       *external_dns_con.Controller
@@ -76,15 +82,20 @@ func (a *Application) Init() error {
 		return err
 	}
 
+	var panicHandler grpc_recovery.RecoveryHandlerFuncContext = func(ctx context.Context, p interface{}) (err error) {
+		zap.S().Warnw("Panic Detected", "error", p, "stacktrace", string(debug.Stack()))
+		return status.Errorf(codes.Internal, "%v", p)
+	}
+
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			append(log_helper.GetUnaryServerInterceptors(),
-				grpc_recovery.UnaryServerInterceptor(),
+				grpc_recovery.UnaryServerInterceptor(grpc_recovery.WithRecoveryHandlerContext(panicHandler)),
 			)...,
 		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			append(log_helper.GetStreamServerInterceptors(),
-				grpc_recovery.StreamServerInterceptor(),
+				grpc_recovery.StreamServerInterceptor(grpc_recovery.WithRecoveryHandlerContext(panicHandler)),
 			)...,
 		)))
 	reflection.Register(grpcServer)
@@ -94,6 +105,7 @@ func (a *Application) Init() error {
 	crds.RegisterCustomDocumentDefinitionServerServer(grpcServer, a.crdController)
 	documents.RegisterNatIpServerServer(grpcServer, a.natIpController)
 	documents.RegisterEndpointServerServer(grpcServer, a.endpointController)
+	documents.RegisterCustomDocumentServerServer(grpcServer, a.customDocController)
 	api_resources.RegisterCustomDocumentDefinitionServerServer(grpcServer, a.apiResourcesController)
 
 	for name := range grpcServer.GetServiceInfo() {
@@ -204,21 +216,24 @@ func (a *Application) initInternal() error {
 		return errors.NewErrorf("Unknown Database Type: %s", a.config.Database.Type.String())
 	}
 
-	var natIpService service_helper.NamespacedService[*documents.NatIp] = natip_service.NewService(natIpRepo)
-	var endpointService service_helper.NamespacedService[*documents.Endpoint] = endpoint_service.NewService(endpointRepo)
+	var natIpService services.NamespacedService[*documents.NatIp] = natip_service.NewService(natIpRepo)
+	var endpointService services.NamespacedService[*documents.Endpoint] = endpoint_service.NewService(endpointRepo)
 	repoManager := repository_manager.NewManager(customDocRepoFactory, natIpRepo, endpointRepo, nsRepo, crdRepo)
-	var nsService service_helper.ClusterService[*namespaces.Namespace] = namespace_service.NewService(nsRepo, repoManager)
-	var crdService service_helper.ClusterService[*crds.CustomResourceDefinition] = crd_service.NewService(crdRepo, repoManager)
+	var customDocService services.NamespacedGvkService[*documents.CustomDocument] = custom_document_service.NewService(repoManager)
+	var nsService services.ClusterService[*namespaces.Namespace] = namespace_service.NewService(nsRepo, repoManager)
+	var crdService services.ClusterService[*crds.CustomResourceDefinition] = crd_service.NewService(crdRepo, repoManager)
 
-	nsService = service_helper.NewTransactionalClusterService[*namespaces.Namespace](nsService, tr)
-	crdService = service_helper.NewTransactionalClusterService[*crds.CustomResourceDefinition](crdService, tr)
-	natIpService = service_helper.NewTransactionalNamespacedService[*documents.NatIp](natIpService, tr)
-	endpointService = service_helper.NewTransactionalNamespacedService[*documents.Endpoint](endpointService, tr)
+	nsService = service_decorator.NewTransactionalClusterService[*namespaces.Namespace](nsService, tr)
+	crdService = service_decorator.NewTransactionalClusterService[*crds.CustomResourceDefinition](crdService, tr)
+	natIpService = service_decorator.NewTransactionalNamespacedService[*documents.NatIp](natIpService, tr)
+	endpointService = service_decorator.NewTransactionalNamespacedService[*documents.Endpoint](endpointService, tr)
+	customDocService = service_decorator.NewTransactionalNamespacedGvkService[*documents.CustomDocument](customDocService, tr)
 
 	a.nsController = namespace_con.NewController(nsService)
 	a.crdController = crd_con.NewController(crdService)
 	a.natIpController = document_con.NewNatIpDocController(natIpService)
 	a.endpointController = document_con.NewEndpointController(endpointService)
+	a.customDocController = document_con.NewCustomDocumentController(customDocService)
 	a.appController = app_lifecycle_con.NewAppLifecycle()
 	a.apiResourcesController = api_resources_con.NewController(repoManager)
 
@@ -232,6 +247,13 @@ func (a *Application) initInternal() error {
 		a.extDnsController = external_dns_con.NewController(a.extDnsService)
 	}
 
-	err := nsService.Init(context.TODO())
-	return err
+	err := crdService.Init(context.TODO())
+	if err != nil {
+		return err
+	}
+	err = nsService.Init(context.TODO())
+	if err != nil {
+		return err
+	}
+	return nil
 }

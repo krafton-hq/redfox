@@ -39,11 +39,13 @@ message GroupVersionKindSpec {
 message SingleObjectReq {
   string name = 1;
   optional string namespace = 2;
+  optional GroupVersionKindSpec gvk = 3;
 }
 
 message ListObjectReq {
   string namespace = 1;
   map<string, string> labelSelectors = 2;
+  optional GroupVersionKindSpec gvk = 3;
 }
 
 enum ResultCode {
