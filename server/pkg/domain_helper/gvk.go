@@ -1,58 +1,41 @@
 package domain_helper
 
 import (
-	"github.com/krafton-hq/red-fox/apis/documents"
+	"strings"
+
 	"github.com/krafton-hq/red-fox/apis/idl_common"
-	"github.com/krafton-hq/red-fox/apis/namespaces"
+	"github.com/krafton-hq/red-fox/server/pkg/errors"
+	"github.com/krafton-hq/red-fox/server/pkg/validation"
 )
 
-var NamespaceGvk = &idl_common.GroupVersionKind{
-	Group:   "core",
-	Version: "v1",
-	Kind:    "Namespace",
+func GetGvkName(gvk *idl_common.GroupVersionKindSpec) string {
+	return strings.ToLower(gvk.Kind + "." + gvk.Group)
 }
 
-type namespaceFactory struct {
+func ParseGvkName(name string) (lowerKind string, group string, err error) {
+	lowerKind, group, found := strings.Cut(name, ".")
+	if !found {
+		return "", "", errors.NewInvalidArguments("GvkName should have at least 1 dot '.'")
+	}
+
+	if errs := validation.IsGroup(group); len(errs) > 0 {
+		return "", "", errors.NewInvalidField("GvkName", "RFC1123 Dns Label/Version", lowerKind)
+	}
+	return
 }
 
-func (f *namespaceFactory) Create() *namespaces.Namespace {
-	return &namespaces.Namespace{}
+func CreateGvkFromMetadatable(m Metadatable) (*idl_common.GroupVersionKindSpec, error) {
+	group, version, found := strings.Cut(m.GetApiVersion(), "/")
+	if !found {
+		return nil, errors.NewInvalidField("apiVersion", "Should have one '/'", m.GetApiVersion())
+	}
+	return &idl_common.GroupVersionKindSpec{
+		Group:   group,
+		Version: version,
+		Kind:    m.GetKind(),
+	}, nil
 }
 
-func NewNamespaceFactory() MetadatableFactory[*namespaces.Namespace] {
-	return &namespaceFactory{}
-}
-
-var NatIpGvk = &idl_common.GroupVersionKind{
-	Group:   "red-fox.sbx-central.io",
-	Version: "v1alpha1",
-	Kind:    "NatIp",
-}
-
-type natIpFactory struct {
-}
-
-func (f *natIpFactory) Create() *documents.NatIp {
-	return &documents.NatIp{}
-}
-
-func NewNatIpFactory() MetadatableFactory[*documents.NatIp] {
-	return &natIpFactory{}
-}
-
-var EndpointGvk = &idl_common.GroupVersionKind{
-	Group:   "red-fox.sbx-central.io",
-	Version: "v1alpha1",
-	Kind:    "Endpoint",
-}
-
-type endpointFactory struct {
-}
-
-func (f *endpointFactory) Create() *documents.Endpoint {
-	return &documents.Endpoint{}
-}
-
-func NewEndpointFactory() MetadatableFactory[*documents.Endpoint] {
-	return &endpointFactory{}
+func EqualsGvk(g1 *idl_common.GroupVersionKindSpec, g2 *idl_common.GroupVersionKindSpec) bool {
+	return g1.Group == g2.Group && g1.Version == g2.Version && g1.Kind == g2.Kind
 }

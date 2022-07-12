@@ -7,16 +7,16 @@ import (
 	"github.com/krafton-hq/red-fox/apis/namespaces"
 	"github.com/krafton-hq/red-fox/server/controllers/utils"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
-	"github.com/krafton-hq/red-fox/server/services/service_helper"
+	"github.com/krafton-hq/red-fox/server/services/services"
 )
 
 type Controller struct {
 	namespaces.UnimplementedNamespaceServerServer
 
-	service service_helper.ClusterService[*namespaces.Namespace]
+	service services.ClusterService[*namespaces.Namespace]
 }
 
-func NewController(service service_helper.ClusterService[*namespaces.Namespace]) *Controller {
+func NewController(service services.ClusterService[*namespaces.Namespace]) *Controller {
 	return &Controller{service: service}
 }
 
@@ -56,6 +56,9 @@ func (c *Controller) CreateNamespace(ctx context.Context, req *namespaces.Create
 	if err := domain_helper.ValidationMetadatable(req.Namespace); err != nil {
 		return utils.CommonResWithErrorTypes(err), nil
 	}
+	if err := domain_helper.ValidationDiscoverableName(req.Namespace); err != nil {
+		return utils.CommonResWithErrorTypes(err), nil
+	}
 	if err := domain_helper.ValidationNamespaceSpec(req.Namespace.Spec); err != nil {
 		return utils.CommonResWithErrorTypes(err), nil
 	}
@@ -71,6 +74,9 @@ func (c *Controller) CreateNamespace(ctx context.Context, req *namespaces.Create
 func (c *Controller) UpdateNamespace(ctx context.Context, req *namespaces.UpdateNamespaceReq) (*idl_common.CommonRes, error) {
 	if err := domain_helper.ValidationMetadatable(req.Namespace); err != nil {
 		return utils.InvalidArguments(err), nil
+	}
+	if err := domain_helper.ValidationDiscoverableName(req.Namespace); err != nil {
+		return utils.CommonResWithErrorTypes(err), nil
 	}
 	if err := domain_helper.ValidationNamespaceSpec(req.Namespace.Spec); err != nil {
 		return utils.CommonResWithErrorTypes(err), nil

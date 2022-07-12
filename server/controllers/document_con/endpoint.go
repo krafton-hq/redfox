@@ -7,16 +7,16 @@ import (
 	"github.com/krafton-hq/red-fox/apis/idl_common"
 	"github.com/krafton-hq/red-fox/server/controllers/utils"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
-	"github.com/krafton-hq/red-fox/server/services/service_helper"
+	"github.com/krafton-hq/red-fox/server/services/services"
 )
 
 type EndpointController struct {
 	documents.UnimplementedEndpointServerServer
 
-	service service_helper.NamespacedService[*documents.Endpoint]
+	service services.NamespacedService[*documents.Endpoint]
 }
 
-func NewEndpointController(service service_helper.NamespacedService[*documents.Endpoint]) *EndpointController {
+func NewEndpointController(service services.NamespacedService[*documents.Endpoint]) *EndpointController {
 	return &EndpointController{service: service}
 }
 
@@ -64,6 +64,9 @@ func (c *EndpointController) CreateEndpoint(ctx context.Context, req *documents.
 	if err := domain_helper.ValidationMetadatable(req.Endpoint); err != nil {
 		return utils.InvalidArguments(err), nil
 	}
+	if err := domain_helper.ValidationDiscoverableName(req.Endpoint); err != nil {
+		return utils.CommonResWithErrorTypes(err), nil
+	}
 	if req.Endpoint.Metadata.Namespace == "" {
 		return utils.CommonResNotEmpty("namespace"), nil
 	}
@@ -79,6 +82,9 @@ func (c *EndpointController) CreateEndpoint(ctx context.Context, req *documents.
 func (c *EndpointController) UpdateEndpoint(ctx context.Context, req *documents.DesiredEndpointReq) (*idl_common.CommonRes, error) {
 	if err := domain_helper.ValidationMetadatable(req.Endpoint); err != nil {
 		return utils.InvalidArguments(err), nil
+	}
+	if err := domain_helper.ValidationDiscoverableName(req.Endpoint); err != nil {
+		return utils.CommonResWithErrorTypes(err), nil
 	}
 	if req.Endpoint.Metadata.Namespace == "" {
 		return utils.CommonResNotEmpty("namespace"), nil

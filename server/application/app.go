@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -16,11 +17,15 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	log_helper "github.com/krafton-hq/golib/log-helper"
+	"github.com/krafton-hq/red-fox/apis/api_resources"
 	"github.com/krafton-hq/red-fox/apis/app_lifecycle"
+	"github.com/krafton-hq/red-fox/apis/crds"
 	"github.com/krafton-hq/red-fox/apis/documents"
 	"github.com/krafton-hq/red-fox/apis/namespaces"
 	"github.com/krafton-hq/red-fox/server/application/configs"
+	"github.com/krafton-hq/red-fox/server/controllers/api_resources_con"
 	"github.com/krafton-hq/red-fox/server/controllers/app_lifecycle_con"
+	"github.com/krafton-hq/red-fox/server/controllers/crd_con"
 	"github.com/krafton-hq/red-fox/server/controllers/document_con"
 	"github.com/krafton-hq/red-fox/server/controllers/external_dns_con"
 	"github.com/krafton-hq/red-fox/server/controllers/namespace_con"
@@ -29,14 +34,20 @@ import (
 	"github.com/krafton-hq/red-fox/server/pkg/errors"
 	"github.com/krafton-hq/red-fox/server/pkg/transactional"
 	"github.com/krafton-hq/red-fox/server/repositories/apiobject_repository"
+	"github.com/krafton-hq/red-fox/server/repositories/repository_manager"
+	"github.com/krafton-hq/red-fox/server/services/crd_service"
+	"github.com/krafton-hq/red-fox/server/services/custom_document_service"
 	"github.com/krafton-hq/red-fox/server/services/endpoint_service"
 	"github.com/krafton-hq/red-fox/server/services/external_dns_service"
 	"github.com/krafton-hq/red-fox/server/services/namespace_service"
 	"github.com/krafton-hq/red-fox/server/services/natip_service"
-	"github.com/krafton-hq/red-fox/server/services/service_helper"
+	"github.com/krafton-hq/red-fox/server/services/service_decorator"
+	"github.com/krafton-hq/red-fox/server/services/services"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	_ "github.com/go-sql-driver/mysql"
@@ -49,11 +60,14 @@ type Application struct {
 
 	grpcServer *grpc.Server
 
-	nsController       *namespace_con.Controller
-	natIpController    *document_con.NatIpController
-	endpointController *document_con.EndpointController
-	appController      *app_lifecycle_con.GrpcController
-	extDnsController   *external_dns_con.Controller
+	nsController           *namespace_con.Controller
+	crdController          *crd_con.Controller
+	natIpController        *document_con.NatIpController
+	endpointController     *document_con.EndpointController
+	customDocController    *document_con.CustomDocumentController
+	apiResourcesController *api_resources_con.Controller
+	appController          *app_lifecycle_con.GrpcController
+	extDnsController       *external_dns_con.Controller
 
 	extDnsService *external_dns_service.Service
 }
@@ -68,23 +82,31 @@ func (a *Application) Init() error {
 		return err
 	}
 
+	var panicHandler grpc_recovery.RecoveryHandlerFuncContext = func(ctx context.Context, p interface{}) (err error) {
+		zap.S().Warnw("Panic Detected", "error", p, "stacktrace", string(debug.Stack()))
+		return status.Errorf(codes.Internal, "%v", p)
+	}
+
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			append(log_helper.GetUnaryServerInterceptors(),
-				grpc_recovery.UnaryServerInterceptor(),
+				grpc_recovery.UnaryServerInterceptor(grpc_recovery.WithRecoveryHandlerContext(panicHandler)),
 			)...,
 		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			append(log_helper.GetStreamServerInterceptors(),
-				grpc_recovery.StreamServerInterceptor(),
+				grpc_recovery.StreamServerInterceptor(grpc_recovery.WithRecoveryHandlerContext(panicHandler)),
 			)...,
 		)))
 	reflection.Register(grpcServer)
 
 	app_lifecycle.RegisterApplicationLifecycleServer(grpcServer, a.appController)
 	namespaces.RegisterNamespaceServerServer(grpcServer, a.nsController)
+	crds.RegisterCustomDocumentDefinitionServerServer(grpcServer, a.crdController)
 	documents.RegisterNatIpServerServer(grpcServer, a.natIpController)
 	documents.RegisterEndpointServerServer(grpcServer, a.endpointController)
+	documents.RegisterCustomDocumentServerServer(grpcServer, a.customDocController)
+	api_resources.RegisterCustomDocumentDefinitionServerServer(grpcServer, a.apiResourcesController)
 
 	for name := range grpcServer.GetServiceInfo() {
 		zap.S().Infow("Registered gRpc Service", "name", name)
@@ -149,8 +171,8 @@ func (a *Application) Init() error {
 }
 
 func (a *Application) initInternal() error {
-	var tr transactional.Transactional
 
+	var tr transactional.Transactional
 	switch a.config.Database.Type {
 	case configs.DatabaseType_Inmemory:
 		tr = transactional.NewNoop()
@@ -170,37 +192,50 @@ func (a *Application) initInternal() error {
 	}
 
 	var nsRepo apiobject_repository.ClusterRepository[*namespaces.Namespace]
+	var crdRepo apiobject_repository.ClusterRepository[*crds.CustomResourceDefinition]
 	var natIpRepo apiobject_repository.NamespacedRepository[*documents.NatIp]
 	var endpointRepo apiobject_repository.NamespacedRepository[*documents.Endpoint]
+	var customDocRepoFactory apiobject_repository.ClusterRepositoryFactory[*documents.CustomDocument]
 
 	switch a.config.Database.Type {
 	case configs.DatabaseType_Inmemory:
 		nsRepo = apiobject_repository.NewInMemoryClusterRepository[*namespaces.Namespace](domain_helper.NamespaceGvk, apiobject_repository.DefaultSystemNamespace)
+		crdRepo = apiobject_repository.NewInMemoryClusterRepository[*crds.CustomResourceDefinition](domain_helper.CrdGvk, apiobject_repository.DefaultSystemNamespace)
 		natIpRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.NatIp](domain_helper.NatIpGvk, apiobject_repository.NewInmemoryClusterRepositoryFactory[*documents.NatIp]())
 		endpointRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.Endpoint](domain_helper.EndpointGvk, apiobject_repository.NewInmemoryClusterRepositoryFactory[*documents.Endpoint]())
+		customDocRepoFactory = apiobject_repository.NewInmemoryClusterRepositoryFactory[*documents.CustomDocument]()
 		break
 	case configs.DatabaseType_Mysql:
 		nsRepo = apiobject_repository.NewMysqlClusterRepository[*namespaces.Namespace](domain_helper.NamespaceGvk, apiobject_repository.DefaultSystemNamespace, domain_helper.NewNamespaceFactory(), tr)
+		crdRepo = apiobject_repository.NewMysqlClusterRepository[*crds.CustomResourceDefinition](domain_helper.CrdGvk, apiobject_repository.DefaultSystemNamespace, domain_helper.NewCrdFactory(), tr)
 		natIpRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.NatIp](domain_helper.NatIpGvk, apiobject_repository.NewMysqlClusterRepositoryFactory[*documents.NatIp](domain_helper.NewNatIpFactory(), tr))
 		endpointRepo = apiobject_repository.NewGenericNamespacedRepository[*documents.Endpoint](domain_helper.EndpointGvk, apiobject_repository.NewMysqlClusterRepositoryFactory[*documents.Endpoint](domain_helper.NewEndpointFactory(), tr))
+		customDocRepoFactory = apiobject_repository.NewMysqlClusterRepositoryFactory[*documents.CustomDocument](domain_helper.NewCustomDocumentFactory(), tr)
 		break
 	default:
 		return errors.NewErrorf("Unknown Database Type: %s", a.config.Database.Type.String())
 	}
 
-	var namespacedRepos = []apiobject_repository.NamespacedRepositoryMetadata{natIpRepo, endpointRepo}
-	var natIpService service_helper.NamespacedService[*documents.NatIp] = natip_service.NewService(natIpRepo)
-	var endpointService service_helper.NamespacedService[*documents.Endpoint] = endpoint_service.NewService(endpointRepo)
-	var nsService service_helper.ClusterService[*namespaces.Namespace] = namespace_service.NewService(nsRepo, namespacedRepos)
+	var natIpService services.NamespacedService[*documents.NatIp] = natip_service.NewService(natIpRepo)
+	var endpointService services.NamespacedService[*documents.Endpoint] = endpoint_service.NewService(endpointRepo)
+	repoManager := repository_manager.NewManager(customDocRepoFactory, natIpRepo, endpointRepo, nsRepo, crdRepo)
+	var customDocService services.NamespacedGvkService[*documents.CustomDocument] = custom_document_service.NewService(repoManager)
+	var nsService services.ClusterService[*namespaces.Namespace] = namespace_service.NewService(nsRepo, repoManager)
+	var crdService services.ClusterService[*crds.CustomResourceDefinition] = crd_service.NewService(crdRepo, repoManager)
 
-	nsService = service_helper.NewTransactionalClusterService[*namespaces.Namespace](nsService, tr)
-	natIpService = service_helper.NewTransactionalNamespacedService[*documents.NatIp](natIpService, tr)
-	endpointService = service_helper.NewTransactionalNamespacedService[*documents.Endpoint](endpointService, tr)
+	nsService = service_decorator.NewTransactionalClusterService[*namespaces.Namespace](nsService, tr)
+	crdService = service_decorator.NewTransactionalClusterService[*crds.CustomResourceDefinition](crdService, tr)
+	natIpService = service_decorator.NewTransactionalNamespacedService[*documents.NatIp](natIpService, tr)
+	endpointService = service_decorator.NewTransactionalNamespacedService[*documents.Endpoint](endpointService, tr)
+	customDocService = service_decorator.NewTransactionalNamespacedGvkService[*documents.CustomDocument](customDocService, tr)
 
 	a.nsController = namespace_con.NewController(nsService)
+	a.crdController = crd_con.NewController(crdService)
 	a.natIpController = document_con.NewNatIpDocController(natIpService)
 	a.endpointController = document_con.NewEndpointController(endpointService)
+	a.customDocController = document_con.NewCustomDocumentController(customDocService)
 	a.appController = app_lifecycle_con.NewAppLifecycle()
+	a.apiResourcesController = api_resources_con.NewController(repoManager)
 
 	if a.config.ExternalDns.Enabled {
 		duration, err := time.ParseDuration(a.config.ExternalDns.SyncInterval)
@@ -212,6 +247,13 @@ func (a *Application) initInternal() error {
 		a.extDnsController = external_dns_con.NewController(a.extDnsService)
 	}
 
-	err := nsService.Init(context.TODO())
-	return err
+	err := crdService.Init(context.TODO())
+	if err != nil {
+		return err
+	}
+	err = nsService.Init(context.TODO())
+	if err != nil {
+		return err
+	}
+	return nil
 }

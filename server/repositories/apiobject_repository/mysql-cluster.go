@@ -77,16 +77,16 @@ func toApiObject[T domain_helper.Metadatable](repo *MysqlClusterRepository[T], t
 }
 
 type MysqlClusterRepository[T domain_helper.Metadatable] struct {
-	gvk       *idl_common.GroupVersionKind
+	gvk       *idl_common.GroupVersionKindSpec
 	uniqueKey string
 	factory   domain_helper.MetadatableFactory[T]
 
 	tr transactional.Transactional
 }
 
-func NewMysqlClusterRepository[T domain_helper.Metadatable](gvk *idl_common.GroupVersionKind, uniqueKeySuffix string, factory domain_helper.MetadatableFactory[T], tr transactional.Transactional) *MysqlClusterRepository[T] {
+func NewMysqlClusterRepository[T domain_helper.Metadatable](gvk *idl_common.GroupVersionKindSpec, uniqueKeySuffix string, factory domain_helper.MetadatableFactory[T], tr transactional.Transactional) *MysqlClusterRepository[T] {
 	return &MysqlClusterRepository[T]{
-		gvk:       proto.Clone(gvk).(*idl_common.GroupVersionKind),
+		gvk:       proto.Clone(gvk).(*idl_common.GroupVersionKindSpec),
 		uniqueKey: fmt.Sprintf("%s/%s/%s", gvk.Group, gvk.Kind, uniqueKeySuffix),
 		factory:   factory,
 		tr:        tr,
@@ -240,7 +240,7 @@ func (r *MysqlClusterRepository[T]) Truncate(ctx context.Context) error {
 	return err
 }
 
-func (r *MysqlClusterRepository[T]) Info() *idl_common.GroupVersionKind {
+func (r *MysqlClusterRepository[T]) Info() *idl_common.GroupVersionKindSpec {
 	return r.gvk
 }
 
@@ -249,7 +249,7 @@ type mysqlClusterRepositoryFactory[T domain_helper.Metadatable] struct {
 	tr         transactional.Transactional
 }
 
-func (f *mysqlClusterRepositoryFactory[T]) Create(gvk *idl_common.GroupVersionKind, uniqueKeySuffix string) ClusterRepository[T] {
+func (f *mysqlClusterRepositoryFactory[T]) Create(gvk *idl_common.GroupVersionKindSpec, uniqueKeySuffix string) ClusterRepository[T] {
 	return NewMysqlClusterRepository(gvk, uniqueKeySuffix, f.objFactory, f.tr)
 }
 

@@ -19,10 +19,10 @@ message ObjectMeta {
   string namespace = 4;
 }
 
-message ObjectDefinition {
-  GroupVersionKind gvk = 1;
+message ApiResourceSpec {
+  string name = 1;
   Scope scope = 2;
-  ServiceDiscoverySpec serviceDiscover = 3;
+  GroupVersionKindSpec gvk = 3;
 }
 
 enum Scope {
@@ -30,24 +30,22 @@ enum Scope {
   Namespaced = 1;
 }
 
-message GroupVersionKind {
+message GroupVersionKindSpec {
   string group = 1;
   string version = 2;
   string kind = 3;
 }
 
-message ServiceDiscoverySpec {
-  bool enabled = 1;
-}
-
 message SingleObjectReq {
   string name = 1;
   optional string namespace = 2;
+  optional GroupVersionKindSpec gvk = 3;
 }
 
 message ListObjectReq {
   string namespace = 1;
   map<string, string> labelSelectors = 2;
+  optional GroupVersionKindSpec gvk = 3;
 }
 
 enum ResultCode {

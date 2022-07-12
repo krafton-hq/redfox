@@ -1,4 +1,4 @@
-package service_helper
+package service_decorator
 
 import (
 	"context"
@@ -6,15 +6,16 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 	"github.com/krafton-hq/red-fox/server/pkg/transactional"
+	"github.com/krafton-hq/red-fox/server/services/services"
 )
 
 type TransactionalNamespacedService[T any] struct {
-	service NamespacedService[T]
+	service services.NamespacedService[T]
 
 	tr transactional.Transactional
 }
 
-func NewTransactionalNamespacedService[T any](service NamespacedService[T], tr transactional.Transactional) NamespacedService[T] {
+func NewTransactionalNamespacedService[T any](service services.NamespacedService[T], tr transactional.Transactional) services.NamespacedService[T] {
 	return &TransactionalNamespacedService[T]{service: service, tr: tr}
 }
 

@@ -7,16 +7,16 @@ import (
 	"github.com/krafton-hq/red-fox/apis/idl_common"
 	"github.com/krafton-hq/red-fox/server/controllers/utils"
 	"github.com/krafton-hq/red-fox/server/pkg/domain_helper"
-	"github.com/krafton-hq/red-fox/server/services/service_helper"
+	"github.com/krafton-hq/red-fox/server/services/services"
 )
 
 type NatIpController struct {
 	documents.UnimplementedNatIpServerServer
 
-	service service_helper.NamespacedService[*documents.NatIp]
+	service services.NamespacedService[*documents.NatIp]
 }
 
-func NewNatIpDocController(service service_helper.NamespacedService[*documents.NatIp]) *NatIpController {
+func NewNatIpDocController(service services.NamespacedService[*documents.NatIp]) *NatIpController {
 	return &NatIpController{service: service}
 }
 
@@ -63,6 +63,9 @@ func (c *NatIpController) CreateNatIp(ctx context.Context, req *documents.Desire
 	if err := domain_helper.ValidationMetadatable(req.NatIp); err != nil {
 		return utils.CommonResWithErrorTypes(err), nil
 	}
+	if err := domain_helper.ValidationDiscoverableName(req.NatIp); err != nil {
+		return utils.CommonResWithErrorTypes(err), nil
+	}
 	if req.NatIp.Metadata.Namespace == "" {
 		return utils.CommonResNotEmpty("namespace"), nil
 	}
@@ -80,6 +83,9 @@ func (c *NatIpController) CreateNatIp(ctx context.Context, req *documents.Desire
 
 func (c *NatIpController) UpdateNatIp(ctx context.Context, req *documents.DesiredNatIpReq) (*idl_common.CommonRes, error) {
 	if err := domain_helper.ValidationMetadatable(req.NatIp); err != nil {
+		return utils.CommonResWithErrorTypes(err), nil
+	}
+	if err := domain_helper.ValidationDiscoverableName(req.NatIp); err != nil {
 		return utils.CommonResWithErrorTypes(err), nil
 	}
 	if req.NatIp.Metadata.Namespace == "" {
