@@ -6,7 +6,7 @@ import "idl_common/types.proto";
 
 option go_package = "github.com/krafton-hq/red-fox/apis/api_resources";
 
-service CustomDocumentDefinitionServer {
+service ApiResourcesServer {
   rpc ListApiResources(idl_common.CommonReq) returns (ListApiResourcesRes) {}
 }
 

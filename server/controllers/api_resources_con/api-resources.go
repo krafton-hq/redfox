@@ -10,7 +10,7 @@ import (
 )
 
 type Controller struct {
-	api_resources.UnimplementedCustomDocumentDefinitionServerServer
+	api_resources.UnimplementedApiResourcesServerServer
 
 	repoManager *repository_manager.Manager
 }

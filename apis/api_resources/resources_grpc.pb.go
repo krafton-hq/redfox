@@ -19,87 +19,86 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// CustomDocumentDefinitionServerClient is the client API for CustomDocumentDefinitionServer service.
+// ApiResourcesServerClient is the client API for ApiResourcesServer service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type CustomDocumentDefinitionServerClient interface {
+type ApiResourcesServerClient interface {
 	ListApiResources(ctx context.Context, in *idl_common.CommonReq, opts ...grpc.CallOption) (*ListApiResourcesRes, error)
 }
 
-type customDocumentDefinitionServerClient struct {
+type apiResourcesServerClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewCustomDocumentDefinitionServerClient(cc grpc.ClientConnInterface) CustomDocumentDefinitionServerClient {
-	return &customDocumentDefinitionServerClient{cc}
+func NewApiResourcesServerClient(cc grpc.ClientConnInterface) ApiResourcesServerClient {
+	return &apiResourcesServerClient{cc}
 }
 
-func (c *customDocumentDefinitionServerClient) ListApiResources(ctx context.Context, in *idl_common.CommonReq, opts ...grpc.CallOption) (*ListApiResourcesRes, error) {
+func (c *apiResourcesServerClient) ListApiResources(ctx context.Context, in *idl_common.CommonReq, opts ...grpc.CallOption) (*ListApiResourcesRes, error) {
 	out := new(ListApiResourcesRes)
-	err := c.cc.Invoke(ctx, "/redfox.api.api_resources.CustomDocumentDefinitionServer/ListApiResources", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/redfox.api.api_resources.ApiResourcesServer/ListApiResources", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// CustomDocumentDefinitionServerServer is the server API for CustomDocumentDefinitionServer service.
-// All implementations must embed UnimplementedCustomDocumentDefinitionServerServer
+// ApiResourcesServerServer is the server API for ApiResourcesServer service.
+// All implementations must embed UnimplementedApiResourcesServerServer
 // for forward compatibility
-type CustomDocumentDefinitionServerServer interface {
+type ApiResourcesServerServer interface {
 	ListApiResources(context.Context, *idl_common.CommonReq) (*ListApiResourcesRes, error)
-	mustEmbedUnimplementedCustomDocumentDefinitionServerServer()
+	mustEmbedUnimplementedApiResourcesServerServer()
 }
 
-// UnimplementedCustomDocumentDefinitionServerServer must be embedded to have forward compatible implementations.
-type UnimplementedCustomDocumentDefinitionServerServer struct {
+// UnimplementedApiResourcesServerServer must be embedded to have forward compatible implementations.
+type UnimplementedApiResourcesServerServer struct {
 }
 
-func (UnimplementedCustomDocumentDefinitionServerServer) ListApiResources(context.Context, *idl_common.CommonReq) (*ListApiResourcesRes, error) {
+func (UnimplementedApiResourcesServerServer) ListApiResources(context.Context, *idl_common.CommonReq) (*ListApiResourcesRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListApiResources not implemented")
 }
-func (UnimplementedCustomDocumentDefinitionServerServer) mustEmbedUnimplementedCustomDocumentDefinitionServerServer() {
-}
+func (UnimplementedApiResourcesServerServer) mustEmbedUnimplementedApiResourcesServerServer() {}
 
-// UnsafeCustomDocumentDefinitionServerServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CustomDocumentDefinitionServerServer will
+// UnsafeApiResourcesServerServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ApiResourcesServerServer will
 // result in compilation errors.
-type UnsafeCustomDocumentDefinitionServerServer interface {
-	mustEmbedUnimplementedCustomDocumentDefinitionServerServer()
+type UnsafeApiResourcesServerServer interface {
+	mustEmbedUnimplementedApiResourcesServerServer()
 }
 
-func RegisterCustomDocumentDefinitionServerServer(s grpc.ServiceRegistrar, srv CustomDocumentDefinitionServerServer) {
-	s.RegisterService(&CustomDocumentDefinitionServer_ServiceDesc, srv)
+func RegisterApiResourcesServerServer(s grpc.ServiceRegistrar, srv ApiResourcesServerServer) {
+	s.RegisterService(&ApiResourcesServer_ServiceDesc, srv)
 }
 
-func _CustomDocumentDefinitionServer_ListApiResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ApiResourcesServer_ListApiResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(idl_common.CommonReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CustomDocumentDefinitionServerServer).ListApiResources(ctx, in)
+		return srv.(ApiResourcesServerServer).ListApiResources(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/redfox.api.api_resources.CustomDocumentDefinitionServer/ListApiResources",
+		FullMethod: "/redfox.api.api_resources.ApiResourcesServer/ListApiResources",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CustomDocumentDefinitionServerServer).ListApiResources(ctx, req.(*idl_common.CommonReq))
+		return srv.(ApiResourcesServerServer).ListApiResources(ctx, req.(*idl_common.CommonReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// CustomDocumentDefinitionServer_ServiceDesc is the grpc.ServiceDesc for CustomDocumentDefinitionServer service.
+// ApiResourcesServer_ServiceDesc is the grpc.ServiceDesc for ApiResourcesServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var CustomDocumentDefinitionServer_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "redfox.api.api_resources.CustomDocumentDefinitionServer",
-	HandlerType: (*CustomDocumentDefinitionServerServer)(nil),
+var ApiResourcesServer_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "redfox.api.api_resources.ApiResourcesServer",
+	HandlerType: (*ApiResourcesServerServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListApiResources",
-			Handler:    _CustomDocumentDefinitionServer_ListApiResources_Handler,
+			Handler:    _ApiResourcesServer_ListApiResources_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
