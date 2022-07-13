@@ -132,7 +132,7 @@ func (a *Application) Init() error {
 	app_lifecycle_con.NewAppLifecycleHttp(a.appController).Register(appLifecycle)
 
 	go func(port int32) {
-		listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+		listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
