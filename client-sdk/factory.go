@@ -141,7 +141,7 @@ func newClient(config *RedFoxClientConfig) (*RedFoxClient, error) {
 		EndpointServerClient:                 documents.NewEndpointServerClient(conn),
 		CustomDocumentServerClient:           documents.NewCustomDocumentServerClient(conn),
 		NamespaceServerClient:                namespaces.NewNamespaceServerClient(conn),
-		CustomDocumentDefinitionServerClient: crds.NewCustomDocumentDefinitionServerClient(conn),
+		CustomResourceDefinitionServerClient: crds.NewCustomResourceDefinitionServerClient(conn),
 		ApiResourcesServerClient:             api_resources.NewApiResourcesServerClient(conn),
 		ApplicationLifecycleClient:           app_lifecycle.NewApplicationLifecycleClient(conn),
 	}
