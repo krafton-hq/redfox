@@ -19,10 +19,10 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// CustomDocumentDefinitionServerClient is the client API for CustomDocumentDefinitionServer service.
+// CustomResourceDefinitionServerClient is the client API for CustomResourceDefinitionServer service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type CustomDocumentDefinitionServerClient interface {
+type CustomResourceDefinitionServerClient interface {
 	GetCustomResourceDefinition(ctx context.Context, in *idl_common.SingleObjectReq, opts ...grpc.CallOption) (*GetCustomResourceDefinitionRes, error)
 	ListCustomResourceDefinitions(ctx context.Context, in *idl_common.ListObjectReq, opts ...grpc.CallOption) (*ListCustomResourceDefinitionsRes, error)
 	CreateCustomResourceDefinition(ctx context.Context, in *CreateCustomResourceDefinitionReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error)
@@ -30,220 +30,220 @@ type CustomDocumentDefinitionServerClient interface {
 	DeleteCustomResourceDefinition(ctx context.Context, in *idl_common.SingleObjectReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error)
 }
 
-type customDocumentDefinitionServerClient struct {
+type customResourceDefinitionServerClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewCustomDocumentDefinitionServerClient(cc grpc.ClientConnInterface) CustomDocumentDefinitionServerClient {
-	return &customDocumentDefinitionServerClient{cc}
+func NewCustomResourceDefinitionServerClient(cc grpc.ClientConnInterface) CustomResourceDefinitionServerClient {
+	return &customResourceDefinitionServerClient{cc}
 }
 
-func (c *customDocumentDefinitionServerClient) GetCustomResourceDefinition(ctx context.Context, in *idl_common.SingleObjectReq, opts ...grpc.CallOption) (*GetCustomResourceDefinitionRes, error) {
+func (c *customResourceDefinitionServerClient) GetCustomResourceDefinition(ctx context.Context, in *idl_common.SingleObjectReq, opts ...grpc.CallOption) (*GetCustomResourceDefinitionRes, error) {
 	out := new(GetCustomResourceDefinitionRes)
-	err := c.cc.Invoke(ctx, "/redfox.api.crds.CustomDocumentDefinitionServer/GetCustomResourceDefinition", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/redfox.api.crds.CustomResourceDefinitionServer/GetCustomResourceDefinition", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *customDocumentDefinitionServerClient) ListCustomResourceDefinitions(ctx context.Context, in *idl_common.ListObjectReq, opts ...grpc.CallOption) (*ListCustomResourceDefinitionsRes, error) {
+func (c *customResourceDefinitionServerClient) ListCustomResourceDefinitions(ctx context.Context, in *idl_common.ListObjectReq, opts ...grpc.CallOption) (*ListCustomResourceDefinitionsRes, error) {
 	out := new(ListCustomResourceDefinitionsRes)
-	err := c.cc.Invoke(ctx, "/redfox.api.crds.CustomDocumentDefinitionServer/ListCustomResourceDefinitions", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/redfox.api.crds.CustomResourceDefinitionServer/ListCustomResourceDefinitions", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *customDocumentDefinitionServerClient) CreateCustomResourceDefinition(ctx context.Context, in *CreateCustomResourceDefinitionReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error) {
+func (c *customResourceDefinitionServerClient) CreateCustomResourceDefinition(ctx context.Context, in *CreateCustomResourceDefinitionReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error) {
 	out := new(idl_common.CommonRes)
-	err := c.cc.Invoke(ctx, "/redfox.api.crds.CustomDocumentDefinitionServer/CreateCustomResourceDefinition", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/redfox.api.crds.CustomResourceDefinitionServer/CreateCustomResourceDefinition", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *customDocumentDefinitionServerClient) UpdateCustomResourceDefinition(ctx context.Context, in *UpdateCustomResourceDefinitionReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error) {
+func (c *customResourceDefinitionServerClient) UpdateCustomResourceDefinition(ctx context.Context, in *UpdateCustomResourceDefinitionReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error) {
 	out := new(idl_common.CommonRes)
-	err := c.cc.Invoke(ctx, "/redfox.api.crds.CustomDocumentDefinitionServer/UpdateCustomResourceDefinition", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/redfox.api.crds.CustomResourceDefinitionServer/UpdateCustomResourceDefinition", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *customDocumentDefinitionServerClient) DeleteCustomResourceDefinition(ctx context.Context, in *idl_common.SingleObjectReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error) {
+func (c *customResourceDefinitionServerClient) DeleteCustomResourceDefinition(ctx context.Context, in *idl_common.SingleObjectReq, opts ...grpc.CallOption) (*idl_common.CommonRes, error) {
 	out := new(idl_common.CommonRes)
-	err := c.cc.Invoke(ctx, "/redfox.api.crds.CustomDocumentDefinitionServer/DeleteCustomResourceDefinition", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/redfox.api.crds.CustomResourceDefinitionServer/DeleteCustomResourceDefinition", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// CustomDocumentDefinitionServerServer is the server API for CustomDocumentDefinitionServer service.
-// All implementations must embed UnimplementedCustomDocumentDefinitionServerServer
+// CustomResourceDefinitionServerServer is the server API for CustomResourceDefinitionServer service.
+// All implementations must embed UnimplementedCustomResourceDefinitionServerServer
 // for forward compatibility
-type CustomDocumentDefinitionServerServer interface {
+type CustomResourceDefinitionServerServer interface {
 	GetCustomResourceDefinition(context.Context, *idl_common.SingleObjectReq) (*GetCustomResourceDefinitionRes, error)
 	ListCustomResourceDefinitions(context.Context, *idl_common.ListObjectReq) (*ListCustomResourceDefinitionsRes, error)
 	CreateCustomResourceDefinition(context.Context, *CreateCustomResourceDefinitionReq) (*idl_common.CommonRes, error)
 	UpdateCustomResourceDefinition(context.Context, *UpdateCustomResourceDefinitionReq) (*idl_common.CommonRes, error)
 	DeleteCustomResourceDefinition(context.Context, *idl_common.SingleObjectReq) (*idl_common.CommonRes, error)
-	mustEmbedUnimplementedCustomDocumentDefinitionServerServer()
+	mustEmbedUnimplementedCustomResourceDefinitionServerServer()
 }
 
-// UnimplementedCustomDocumentDefinitionServerServer must be embedded to have forward compatible implementations.
-type UnimplementedCustomDocumentDefinitionServerServer struct {
+// UnimplementedCustomResourceDefinitionServerServer must be embedded to have forward compatible implementations.
+type UnimplementedCustomResourceDefinitionServerServer struct {
 }
 
-func (UnimplementedCustomDocumentDefinitionServerServer) GetCustomResourceDefinition(context.Context, *idl_common.SingleObjectReq) (*GetCustomResourceDefinitionRes, error) {
+func (UnimplementedCustomResourceDefinitionServerServer) GetCustomResourceDefinition(context.Context, *idl_common.SingleObjectReq) (*GetCustomResourceDefinitionRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCustomResourceDefinition not implemented")
 }
-func (UnimplementedCustomDocumentDefinitionServerServer) ListCustomResourceDefinitions(context.Context, *idl_common.ListObjectReq) (*ListCustomResourceDefinitionsRes, error) {
+func (UnimplementedCustomResourceDefinitionServerServer) ListCustomResourceDefinitions(context.Context, *idl_common.ListObjectReq) (*ListCustomResourceDefinitionsRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListCustomResourceDefinitions not implemented")
 }
-func (UnimplementedCustomDocumentDefinitionServerServer) CreateCustomResourceDefinition(context.Context, *CreateCustomResourceDefinitionReq) (*idl_common.CommonRes, error) {
+func (UnimplementedCustomResourceDefinitionServerServer) CreateCustomResourceDefinition(context.Context, *CreateCustomResourceDefinitionReq) (*idl_common.CommonRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCustomResourceDefinition not implemented")
 }
-func (UnimplementedCustomDocumentDefinitionServerServer) UpdateCustomResourceDefinition(context.Context, *UpdateCustomResourceDefinitionReq) (*idl_common.CommonRes, error) {
+func (UnimplementedCustomResourceDefinitionServerServer) UpdateCustomResourceDefinition(context.Context, *UpdateCustomResourceDefinitionReq) (*idl_common.CommonRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateCustomResourceDefinition not implemented")
 }
-func (UnimplementedCustomDocumentDefinitionServerServer) DeleteCustomResourceDefinition(context.Context, *idl_common.SingleObjectReq) (*idl_common.CommonRes, error) {
+func (UnimplementedCustomResourceDefinitionServerServer) DeleteCustomResourceDefinition(context.Context, *idl_common.SingleObjectReq) (*idl_common.CommonRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCustomResourceDefinition not implemented")
 }
-func (UnimplementedCustomDocumentDefinitionServerServer) mustEmbedUnimplementedCustomDocumentDefinitionServerServer() {
+func (UnimplementedCustomResourceDefinitionServerServer) mustEmbedUnimplementedCustomResourceDefinitionServerServer() {
 }
 
-// UnsafeCustomDocumentDefinitionServerServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CustomDocumentDefinitionServerServer will
+// UnsafeCustomResourceDefinitionServerServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CustomResourceDefinitionServerServer will
 // result in compilation errors.
-type UnsafeCustomDocumentDefinitionServerServer interface {
-	mustEmbedUnimplementedCustomDocumentDefinitionServerServer()
+type UnsafeCustomResourceDefinitionServerServer interface {
+	mustEmbedUnimplementedCustomResourceDefinitionServerServer()
 }
 
-func RegisterCustomDocumentDefinitionServerServer(s grpc.ServiceRegistrar, srv CustomDocumentDefinitionServerServer) {
-	s.RegisterService(&CustomDocumentDefinitionServer_ServiceDesc, srv)
+func RegisterCustomResourceDefinitionServerServer(s grpc.ServiceRegistrar, srv CustomResourceDefinitionServerServer) {
+	s.RegisterService(&CustomResourceDefinitionServer_ServiceDesc, srv)
 }
 
-func _CustomDocumentDefinitionServer_GetCustomResourceDefinition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CustomResourceDefinitionServer_GetCustomResourceDefinition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(idl_common.SingleObjectReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CustomDocumentDefinitionServerServer).GetCustomResourceDefinition(ctx, in)
+		return srv.(CustomResourceDefinitionServerServer).GetCustomResourceDefinition(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/redfox.api.crds.CustomDocumentDefinitionServer/GetCustomResourceDefinition",
+		FullMethod: "/redfox.api.crds.CustomResourceDefinitionServer/GetCustomResourceDefinition",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CustomDocumentDefinitionServerServer).GetCustomResourceDefinition(ctx, req.(*idl_common.SingleObjectReq))
+		return srv.(CustomResourceDefinitionServerServer).GetCustomResourceDefinition(ctx, req.(*idl_common.SingleObjectReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CustomDocumentDefinitionServer_ListCustomResourceDefinitions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CustomResourceDefinitionServer_ListCustomResourceDefinitions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(idl_common.ListObjectReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CustomDocumentDefinitionServerServer).ListCustomResourceDefinitions(ctx, in)
+		return srv.(CustomResourceDefinitionServerServer).ListCustomResourceDefinitions(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/redfox.api.crds.CustomDocumentDefinitionServer/ListCustomResourceDefinitions",
+		FullMethod: "/redfox.api.crds.CustomResourceDefinitionServer/ListCustomResourceDefinitions",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CustomDocumentDefinitionServerServer).ListCustomResourceDefinitions(ctx, req.(*idl_common.ListObjectReq))
+		return srv.(CustomResourceDefinitionServerServer).ListCustomResourceDefinitions(ctx, req.(*idl_common.ListObjectReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CustomDocumentDefinitionServer_CreateCustomResourceDefinition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CustomResourceDefinitionServer_CreateCustomResourceDefinition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateCustomResourceDefinitionReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CustomDocumentDefinitionServerServer).CreateCustomResourceDefinition(ctx, in)
+		return srv.(CustomResourceDefinitionServerServer).CreateCustomResourceDefinition(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/redfox.api.crds.CustomDocumentDefinitionServer/CreateCustomResourceDefinition",
+		FullMethod: "/redfox.api.crds.CustomResourceDefinitionServer/CreateCustomResourceDefinition",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CustomDocumentDefinitionServerServer).CreateCustomResourceDefinition(ctx, req.(*CreateCustomResourceDefinitionReq))
+		return srv.(CustomResourceDefinitionServerServer).CreateCustomResourceDefinition(ctx, req.(*CreateCustomResourceDefinitionReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CustomDocumentDefinitionServer_UpdateCustomResourceDefinition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CustomResourceDefinitionServer_UpdateCustomResourceDefinition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateCustomResourceDefinitionReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CustomDocumentDefinitionServerServer).UpdateCustomResourceDefinition(ctx, in)
+		return srv.(CustomResourceDefinitionServerServer).UpdateCustomResourceDefinition(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/redfox.api.crds.CustomDocumentDefinitionServer/UpdateCustomResourceDefinition",
+		FullMethod: "/redfox.api.crds.CustomResourceDefinitionServer/UpdateCustomResourceDefinition",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CustomDocumentDefinitionServerServer).UpdateCustomResourceDefinition(ctx, req.(*UpdateCustomResourceDefinitionReq))
+		return srv.(CustomResourceDefinitionServerServer).UpdateCustomResourceDefinition(ctx, req.(*UpdateCustomResourceDefinitionReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CustomDocumentDefinitionServer_DeleteCustomResourceDefinition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CustomResourceDefinitionServer_DeleteCustomResourceDefinition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(idl_common.SingleObjectReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CustomDocumentDefinitionServerServer).DeleteCustomResourceDefinition(ctx, in)
+		return srv.(CustomResourceDefinitionServerServer).DeleteCustomResourceDefinition(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/redfox.api.crds.CustomDocumentDefinitionServer/DeleteCustomResourceDefinition",
+		FullMethod: "/redfox.api.crds.CustomResourceDefinitionServer/DeleteCustomResourceDefinition",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CustomDocumentDefinitionServerServer).DeleteCustomResourceDefinition(ctx, req.(*idl_common.SingleObjectReq))
+		return srv.(CustomResourceDefinitionServerServer).DeleteCustomResourceDefinition(ctx, req.(*idl_common.SingleObjectReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// CustomDocumentDefinitionServer_ServiceDesc is the grpc.ServiceDesc for CustomDocumentDefinitionServer service.
+// CustomResourceDefinitionServer_ServiceDesc is the grpc.ServiceDesc for CustomResourceDefinitionServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var CustomDocumentDefinitionServer_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "redfox.api.crds.CustomDocumentDefinitionServer",
-	HandlerType: (*CustomDocumentDefinitionServerServer)(nil),
+var CustomResourceDefinitionServer_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "redfox.api.crds.CustomResourceDefinitionServer",
+	HandlerType: (*CustomResourceDefinitionServerServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetCustomResourceDefinition",
-			Handler:    _CustomDocumentDefinitionServer_GetCustomResourceDefinition_Handler,
+			Handler:    _CustomResourceDefinitionServer_GetCustomResourceDefinition_Handler,
 		},
 		{
 			MethodName: "ListCustomResourceDefinitions",
-			Handler:    _CustomDocumentDefinitionServer_ListCustomResourceDefinitions_Handler,
+			Handler:    _CustomResourceDefinitionServer_ListCustomResourceDefinitions_Handler,
 		},
 		{
 			MethodName: "CreateCustomResourceDefinition",
-			Handler:    _CustomDocumentDefinitionServer_CreateCustomResourceDefinition_Handler,
+			Handler:    _CustomResourceDefinitionServer_CreateCustomResourceDefinition_Handler,
 		},
 		{
 			MethodName: "UpdateCustomResourceDefinition",
-			Handler:    _CustomDocumentDefinitionServer_UpdateCustomResourceDefinition_Handler,
+			Handler:    _CustomResourceDefinitionServer_UpdateCustomResourceDefinition_Handler,
 		},
 		{
 			MethodName: "DeleteCustomResourceDefinition",
-			Handler:    _CustomDocumentDefinitionServer_DeleteCustomResourceDefinition_Handler,
+			Handler:    _CustomResourceDefinitionServer_DeleteCustomResourceDefinition_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

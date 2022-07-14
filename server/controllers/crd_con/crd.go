@@ -13,7 +13,7 @@ import (
 )
 
 type Controller struct {
-	crds.UnimplementedCustomDocumentDefinitionServerServer
+	crds.UnimplementedCustomResourceDefinitionServerServer
 
 	service services.ClusterService[*crds.CustomResourceDefinition]
 }

@@ -102,11 +102,11 @@ func (a *Application) Init() error {
 
 	app_lifecycle.RegisterApplicationLifecycleServer(grpcServer, a.appController)
 	namespaces.RegisterNamespaceServerServer(grpcServer, a.nsController)
-	crds.RegisterCustomDocumentDefinitionServerServer(grpcServer, a.crdController)
+	crds.RegisterCustomResourceDefinitionServerServer(grpcServer, a.crdController)
 	documents.RegisterNatIpServerServer(grpcServer, a.natIpController)
 	documents.RegisterEndpointServerServer(grpcServer, a.endpointController)
 	documents.RegisterCustomDocumentServerServer(grpcServer, a.customDocController)
-	api_resources.RegisterCustomDocumentDefinitionServerServer(grpcServer, a.apiResourcesController)
+	api_resources.RegisterApiResourcesServerServer(grpcServer, a.apiResourcesController)
 
 	for name := range grpcServer.GetServiceInfo() {
 		zap.S().Infow("Registered gRpc Service", "name", name)

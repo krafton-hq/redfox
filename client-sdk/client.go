@@ -13,7 +13,7 @@ type RedFoxClient struct {
 	documents.EndpointServerClient
 	documents.CustomDocumentServerClient
 	namespaces.NamespaceServerClient
-	crds.CustomDocumentDefinitionServerClient
+	crds.CustomResourceDefinitionServerClient
 	api_resources.ApiResourcesServerClient
 	app_lifecycle.ApplicationLifecycleClient
 }

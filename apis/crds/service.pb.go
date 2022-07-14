@@ -426,7 +426,7 @@ var file_crds_service_proto_rawDesc = []byte{
 	0x6f, 0x78, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x63, 0x72, 0x64, 0x73, 0x2e, 0x43, 0x75, 0x73, 0x74,
 	0x6f, 0x6d, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x44, 0x65, 0x66, 0x69, 0x6e, 0x69,
 	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x03, 0x63, 0x72, 0x64, 0x32, 0xf8, 0x04, 0x0a, 0x1e, 0x43, 0x75,
-	0x73, 0x74, 0x6f, 0x6d, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74, 0x44, 0x65, 0x66, 0x69,
+	0x73, 0x74, 0x6f, 0x6d, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x44, 0x65, 0x66, 0x69,
 	0x6e, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x12, 0x78, 0x0a, 0x1b,
 	0x47, 0x65, 0x74, 0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63,
 	0x65, 0x44, 0x65, 0x66, 0x69, 0x6e, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x26, 0x2e, 0x72, 0x65,
@@ -510,16 +510,16 @@ var file_crds_service_proto_depIdxs = []int32{
 	0,  // 8: redfox.api.crds.CreateCustomResourceDefinitionReq.crd:type_name -> redfox.api.crds.CustomResourceDefinition
 	9,  // 9: redfox.api.crds.UpdateCustomResourceDefinitionReq.commonReq:type_name -> redfox.api.idl_common.CommonReq
 	0,  // 10: redfox.api.crds.UpdateCustomResourceDefinitionReq.crd:type_name -> redfox.api.crds.CustomResourceDefinition
-	10, // 11: redfox.api.crds.CustomDocumentDefinitionServer.GetCustomResourceDefinition:input_type -> redfox.api.idl_common.SingleObjectReq
-	11, // 12: redfox.api.crds.CustomDocumentDefinitionServer.ListCustomResourceDefinitions:input_type -> redfox.api.idl_common.ListObjectReq
-	4,  // 13: redfox.api.crds.CustomDocumentDefinitionServer.CreateCustomResourceDefinition:input_type -> redfox.api.crds.CreateCustomResourceDefinitionReq
-	5,  // 14: redfox.api.crds.CustomDocumentDefinitionServer.UpdateCustomResourceDefinition:input_type -> redfox.api.crds.UpdateCustomResourceDefinitionReq
-	10, // 15: redfox.api.crds.CustomDocumentDefinitionServer.DeleteCustomResourceDefinition:input_type -> redfox.api.idl_common.SingleObjectReq
-	2,  // 16: redfox.api.crds.CustomDocumentDefinitionServer.GetCustomResourceDefinition:output_type -> redfox.api.crds.GetCustomResourceDefinitionRes
-	3,  // 17: redfox.api.crds.CustomDocumentDefinitionServer.ListCustomResourceDefinitions:output_type -> redfox.api.crds.ListCustomResourceDefinitionsRes
-	8,  // 18: redfox.api.crds.CustomDocumentDefinitionServer.CreateCustomResourceDefinition:output_type -> redfox.api.idl_common.CommonRes
-	8,  // 19: redfox.api.crds.CustomDocumentDefinitionServer.UpdateCustomResourceDefinition:output_type -> redfox.api.idl_common.CommonRes
-	8,  // 20: redfox.api.crds.CustomDocumentDefinitionServer.DeleteCustomResourceDefinition:output_type -> redfox.api.idl_common.CommonRes
+	10, // 11: redfox.api.crds.CustomResourceDefinitionServer.GetCustomResourceDefinition:input_type -> redfox.api.idl_common.SingleObjectReq
+	11, // 12: redfox.api.crds.CustomResourceDefinitionServer.ListCustomResourceDefinitions:input_type -> redfox.api.idl_common.ListObjectReq
+	4,  // 13: redfox.api.crds.CustomResourceDefinitionServer.CreateCustomResourceDefinition:input_type -> redfox.api.crds.CreateCustomResourceDefinitionReq
+	5,  // 14: redfox.api.crds.CustomResourceDefinitionServer.UpdateCustomResourceDefinition:input_type -> redfox.api.crds.UpdateCustomResourceDefinitionReq
+	10, // 15: redfox.api.crds.CustomResourceDefinitionServer.DeleteCustomResourceDefinition:input_type -> redfox.api.idl_common.SingleObjectReq
+	2,  // 16: redfox.api.crds.CustomResourceDefinitionServer.GetCustomResourceDefinition:output_type -> redfox.api.crds.GetCustomResourceDefinitionRes
+	3,  // 17: redfox.api.crds.CustomResourceDefinitionServer.ListCustomResourceDefinitions:output_type -> redfox.api.crds.ListCustomResourceDefinitionsRes
+	8,  // 18: redfox.api.crds.CustomResourceDefinitionServer.CreateCustomResourceDefinition:output_type -> redfox.api.idl_common.CommonRes
+	8,  // 19: redfox.api.crds.CustomResourceDefinitionServer.UpdateCustomResourceDefinition:output_type -> redfox.api.idl_common.CommonRes
+	8,  // 20: redfox.api.crds.CustomResourceDefinitionServer.DeleteCustomResourceDefinition:output_type -> redfox.api.idl_common.CommonRes
 	16, // [16:21] is the sub-list for method output_type
 	11, // [11:16] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name

@@ -6,7 +6,7 @@ import "idl_common/types.proto";
 
 option go_package = "github.com/krafton-hq/red-fox/apis/crds";
 
-service CustomDocumentDefinitionServer {
+service CustomResourceDefinitionServer {
   rpc GetCustomResourceDefinition(idl_common.SingleObjectReq) returns (GetCustomResourceDefinitionRes) {}
   rpc ListCustomResourceDefinitions(idl_common.ListObjectReq) returns (ListCustomResourceDefinitionsRes) {}
   rpc CreateCustomResourceDefinition(CreateCustomResourceDefinitionReq) returns (idl_common.CommonRes) {}
