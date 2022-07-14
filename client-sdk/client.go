@@ -1,4 +1,4 @@
-package fox_grpc
+package client_sdk
 
 import (
 	"github.com/krafton-hq/red-fox/apis/api_resources"

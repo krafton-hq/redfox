@@ -1,4 +1,4 @@
-package fox_grpc
+package client_sdk
 
 import (
 	"crypto/x509"
