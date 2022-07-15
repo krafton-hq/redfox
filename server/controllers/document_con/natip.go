@@ -107,7 +107,7 @@ func (c *NatIpController) DeleteNatIp(ctx context.Context, req *idl_common.Singl
 	if req.Name == "" {
 		return utils.CommonResNotEmpty("name"), nil
 	}
-	if req.Namespace == nil || *req.Namespace != "" {
+	if req.Namespace == nil || *req.Namespace == "" {
 		return utils.CommonResNotEmpty("namespace"), nil
 	}
 
