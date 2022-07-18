@@ -9,6 +9,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/krafton-hq/red-fox/apis/documents"
+	"github.com/krafton-hq/red-fox/server/pkg/validation"
 	"github.com/krafton-hq/red-fox/server/services/services"
 	"github.com/samber/lo"
 	"go.uber.org/zap"
@@ -16,10 +17,7 @@ import (
 )
 
 type Service struct {
-	natIpNameTemplate      string
-	natIpLabelsTemplate    string
-	endpointNameTemplate   string
-	endpointLabelsTemplate string
+	templates *Templates
 
 	endpointCache []*endpoint.Endpoint
 	interval      time.Duration
@@ -28,15 +26,21 @@ type Service struct {
 	natIpService services.NamespacedService[*documents.NatIp]
 }
 
-func NewService(natIpNameTemplate, natIpLabelsTemplate, endpointNameTemplate, endpointLabelsTemplate string, interval time.Duration, natIpService services.NamespacedService[*documents.NatIp]) *Service {
+type Templates struct {
+	NatIpName              string
+	NatIpLabel             string
+	NatIpLabelWithValue    string
+	EndpointName           string
+	EndpointLabel          string
+	EndpointLabelWithValue string
+}
+
+func NewService(templates *Templates, interval time.Duration, natIpService services.NamespacedService[*documents.NatIp]) *Service {
 	zap.S().Infow("Initialize External-Dns Service with", "interval", interval.String())
 	return &Service{
-		natIpNameTemplate:      natIpNameTemplate,
-		natIpLabelsTemplate:    natIpLabelsTemplate,
-		endpointNameTemplate:   endpointNameTemplate,
-		endpointLabelsTemplate: endpointLabelsTemplate,
-		interval:               interval,
-		natIpService:           natIpService,
+		templates:    templates,
+		interval:     interval,
+		natIpService: natIpService,
 	}
 }
 
@@ -73,15 +77,7 @@ func (s *Service) SyncCache(ctx context.Context) error {
 		return err
 	}
 
-	byLabel := map[LabelKey][]*documents.NatIp{}
-	for _, natIp := range natIps {
-		for label := range natIp.Metadata.Labels {
-			key := LabelKey{Label: label, Namespace: natIp.Metadata.Namespace}
-			byLabel[key] = append(byLabel[key], natIp)
-		}
-	}
-
-	natIpNameTmpl, err := NewTemplateHelper(s.natIpNameTemplate)
+	natIpNameTmpl, err := NewTemplateHelper(s.templates.NatIpName)
 	if err != nil {
 		return err
 	}
@@ -92,7 +88,10 @@ func (s *Service) SyncCache(ctx context.Context) error {
 		})
 		srvTargets = lo.Uniq[string](srvTargets)
 
-		dnsName, err := natIpNameTmpl.Execute(natIp.Metadata.Name, natIp.Metadata.Namespace)
+		dnsName, err := natIpNameTmpl.Execute(&ValuesName{
+			Name:      natIp.Metadata.Name,
+			Namespace: natIp.Metadata.Namespace,
+		})
 		if err != nil {
 			continue
 		}
@@ -105,11 +104,18 @@ func (s *Service) SyncCache(ctx context.Context) error {
 		})
 	}
 
-	natIpLabelsTmpl, err := NewTemplateHelper(s.natIpLabelsTemplate)
+	byLabelKeys := map[ValuesLabelKey][]*documents.NatIp{}
+	for _, natIp := range natIps {
+		for label := range natIp.Metadata.Labels {
+			key := ValuesLabelKey{Key: label, Namespace: natIp.Metadata.Namespace}
+			byLabelKeys[key] = append(byLabelKeys[key], natIp)
+		}
+	}
+	natIpLabelsTmpl, err := NewTemplateHelper(s.templates.NatIpLabel)
 	if err != nil {
 		return err
 	}
-	for key, ips := range byLabel {
+	for key, ips := range byLabelKeys {
 		srvTargets := lo.FlatMap[*documents.NatIp, string](ips, func(ip *documents.NatIp, _ int) []string {
 			return lo.Map[string, string](ip.Spec.Cidrs, func(s string, _ int) string {
 				return fmt.Sprintf("1 1 0 %s", s)
@@ -117,7 +123,43 @@ func (s *Service) SyncCache(ctx context.Context) error {
 		})
 		srvTargets = lo.Uniq[string](srvTargets)
 
-		dnsName, err := natIpLabelsTmpl.Execute(key.Label, key.Namespace)
+		dnsName, err := natIpLabelsTmpl.Execute(key)
+		if err != nil {
+			continue
+		}
+
+		endpoints = append(endpoints, &endpoint.Endpoint{
+			DNSName:    dnsName,
+			Targets:    srvTargets,
+			RecordType: recordType,
+			RecordTTL:  recordTTL,
+		})
+	}
+
+	byLabelKeyValues := map[ValuesLabelKV][]*documents.NatIp{}
+	for _, natIp := range natIps {
+		for key, value := range natIp.Metadata.Labels {
+			if errs := validation.IsDiscoveryName(value); len(errs) >= 1 {
+				continue
+			}
+
+			mapKey := ValuesLabelKV{Key: key, Value: value, Namespace: natIp.Metadata.Namespace}
+			byLabelKeyValues[mapKey] = append(byLabelKeyValues[mapKey], natIp)
+		}
+	}
+	natIpLabelsWithValueTmpl, err := NewTemplateHelper(s.templates.NatIpLabelWithValue)
+	if err != nil {
+		return err
+	}
+	for key, ips := range byLabelKeyValues {
+		srvTargets := lo.FlatMap[*documents.NatIp, string](ips, func(ip *documents.NatIp, _ int) []string {
+			return lo.Map[string, string](ip.Spec.Cidrs, func(s string, _ int) string {
+				return fmt.Sprintf("1 1 0 %s", s)
+			})
+		})
+		srvTargets = lo.Uniq[string](srvTargets)
+
+		dnsName, err := natIpLabelsWithValueTmpl.Execute(key)
 		if err != nil {
 			continue
 		}
@@ -131,12 +173,23 @@ func (s *Service) SyncCache(ctx context.Context) error {
 	}
 
 	s.endpointCache = endpoints
-	zap.S().Infow("External-Dns Finish SyncCache", "# of NatIps", len(natIps), "# of Labels", len(byLabel), "# of Records", len(endpoints))
+	zap.S().Infow("External-Dns Finish SyncCache", "NatIps", len(natIps), "Labels", len(byLabelKeys), "LabelWithValues", len(byLabelKeyValues), "Records", len(endpoints))
 	return nil
 }
 
-type LabelKey struct {
-	Label     string
+type ValuesName struct {
+	Name      string
+	Namespace string
+}
+
+type ValuesLabelKey struct {
+	Key       string
+	Namespace string
+}
+
+type ValuesLabelKV struct {
+	Key       string
+	Value     string
 	Namespace string
 }
 
@@ -154,20 +207,14 @@ func NewTemplateHelper(tmplStr string) (*TemplateHelper, error) {
 	return &TemplateHelper{tmpl: tmpl, tmplStr: tmplStr}, nil
 }
 
-func (h *TemplateHelper) Execute(name, namespace string) (string, error) {
+func (h *TemplateHelper) Execute(values any) (string, error) {
 	buf := &bytes.Buffer{}
-	values := &TemplateValues{Name: name, Namespace: namespace}
 	err := h.tmpl.Execute(buf, values)
 	if err != nil {
 		zap.S().Infow("External-Dns DnsName Execute Template Failed, This error would skip record template", "template", h.tmplStr, "values", values, "error", err)
 		return "", err
 	}
 	return buf.String(), nil
-}
-
-type TemplateValues struct {
-	Name      string
-	Namespace string
 }
 
 const recordTTL = endpoint.TTL(30)

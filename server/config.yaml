@@ -14,7 +14,10 @@ externalDns:
   enabled: true
   port: 9000
   syncInterval: 120s
-  natIpNameTemplate: "{{ .Name }}.{{ .Namespace }}.nats.example.com"
-  natIpLabelTemplate: "{{ .Name }}.{{ .Namespace }}.labels.nats.example.com"
-  endpointNameTemplate: "{{ .Name }}.{{ .Namespace }}.endpoints.example.com"
-  endpointLabelTemplate: "{{ .Name }}.{{ .Namespace }}.labels.endpoints.example.com"
+  templates:
+    natIpName: "{{ .Name }}.{{ .Namespace }}.nats.example.com"
+    natIpLabel: "{{ .Key }}.{{ .Namespace }}.labels.nats.example.com"
+    natIpLabelWithValue: "{{ .Value }}.{{ .Key }}.{{ .Namespace }}.labels.nats.example.com"
+    endpointName: "{{ .Name }}.{{ .Namespace }}.endpoints.example.com"
+    endpointLabel: "{{ .Key }}.{{ .Namespace }}.labels.endpoints.example.com"
+    endpointLabelWithValue: "{{ .Value }}.{{ .Key }}.{{ .Namespace }}.labels.endpoints.example.com"

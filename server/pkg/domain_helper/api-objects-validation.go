@@ -15,6 +15,7 @@ const qualifiedNameMaxLength int = 253
 
 const fieldName = "metadata.name"
 const fieldLabelKey = "metadata.label[key]"
+const fieldLabelValue = "metadata.label[value]"
 const fieldAnnotation = "metadata.annotations"
 const fieldAnnotationKey = "metadata.annotations[key]"
 
@@ -30,14 +31,14 @@ func ValidationMetadatable(m Metadatable) error {
 
 	for key, value := range metadata.Labels {
 		if len(key) == 0 || len(key) > labelKeyMaxLength {
-			return errors.NewInvalidField(fieldLabelKey, fmt.Sprintf("Key Length Should be [1, %d]", labelKeyMaxLength), key)
+			return errors.NewInvalidField(fieldLabelKey, fmt.Sprintf("Label Key Length Should be [1, %d]", labelKeyMaxLength), key)
 		}
-		if len(value) > labelValueMaxLength {
-			return errors.NewInvalidField(fieldLabelKey, fmt.Sprintf("Value Length Should be [1, %d]", labelValueMaxLength), value)
-		}
-
 		if errs := validation.IsDiscoveryName(key); len(errs) > 0 {
 			return errors.NewInvalidField(fieldLabelKey, "RFC1123 Dns Label", key)
+		}
+
+		if len(value) > labelValueMaxLength {
+			return errors.NewInvalidField(fieldLabelValue, fmt.Sprintf("Label Value Length Should be [0, %d]", labelValueMaxLength), value)
 		}
 	}
 
