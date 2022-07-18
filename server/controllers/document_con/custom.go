@@ -119,7 +119,7 @@ func (c *CustomDocumentController) DeleteCustomDocument(ctx context.Context, req
 	if req.Name == "" {
 		return utils.CommonResNotEmpty("name"), nil
 	}
-	if req.Namespace == nil || *req.Namespace != "" {
+	if req.Namespace == nil || *req.Namespace == "" {
 		return utils.CommonResNotEmpty("namespace"), nil
 	}
 	if req.Gvk == nil {

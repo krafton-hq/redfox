@@ -13,6 +13,6 @@ database:
 externalDns:
   enabled: true
   port: 9000
-  syncInterval: 10s
+  syncInterval: 120s
   natIpDomain: srv.my-central.io
   endpointDomain: srv.my-central.io

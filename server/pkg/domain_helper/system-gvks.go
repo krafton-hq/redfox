@@ -26,8 +26,8 @@ func NewNamespaceFactory() MetadatableFactory[*namespaces.Namespace] {
 }
 
 var NatIpGvk = &idl_common.GroupVersionKindSpec{
-	Group:   "red-fox.sbx-central.io",
-	Version: "v1alpha1",
+	Group:   "core",
+	Version: "v1",
 	Kind:    "NatIp",
 }
 
@@ -43,8 +43,8 @@ func NewNatIpFactory() MetadatableFactory[*documents.NatIp] {
 }
 
 var EndpointGvk = &idl_common.GroupVersionKindSpec{
-	Group:   "red-fox.sbx-central.io",
-	Version: "v1alpha1",
+	Group:   "core",
+	Version: "v1",
 	Kind:    "Endpoint",
 }
 
@@ -60,8 +60,8 @@ func NewEndpointFactory() MetadatableFactory[*documents.Endpoint] {
 }
 
 var CrdGvk = &idl_common.GroupVersionKindSpec{
-	Group:   "red-fox.sbx-central.io",
-	Version: "v1alpha1",
+	Group:   "core",
+	Version: "v1",
 	Kind:    "CustomResourceDefinition",
 }
 
