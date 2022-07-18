@@ -42,6 +42,8 @@ message ExternalDns {
   bool enabled = 1;
   int32 port = 2;
   string syncInterval = 3;
-  string natIpDomain = 4;
-  string endpointDomain = 5;
+  string natIpNameTemplate = 4;
+  string natIpLabelTemplate = 5;
+  string endpointNameTemplate = 6;
+  string endpointLabelTemplate = 7;
 }

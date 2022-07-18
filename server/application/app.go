@@ -243,7 +243,7 @@ func (a *Application) initInternal() error {
 			return err
 		}
 
-		a.extDnsService = external_dns_service.NewService(a.config.ExternalDns.NatIpDomain, a.config.ExternalDns.EndpointDomain, duration, natIpService)
+		a.extDnsService = external_dns_service.NewService(a.config.ExternalDns.NatIpNameTemplate, a.config.ExternalDns.NatIpLabelTemplate, a.config.ExternalDns.EndpointNameTemplate, a.config.ExternalDns.EndpointLabelTemplate, duration, natIpService)
 		a.extDnsController = external_dns_con.NewController(a.extDnsService)
 	}
 

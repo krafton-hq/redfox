@@ -14,5 +14,7 @@ externalDns:
   enabled: true
   port: 9000
   syncInterval: 120s
-  natIpDomain: srv.my-central.io
-  endpointDomain: srv.my-central.io
+  natIpNameTemplate: "{{ .Name }}.{{ .Namespace }}.nats.example.com"
+  natIpLabelTemplate: "{{ .Name }}.{{ .Namespace }}.labels.nats.example.com"
+  endpointNameTemplate: "{{ .Name }}.{{ .Namespace }}.endpoints.example.com"
+  endpointLabelTemplate: "{{ .Name }}.{{ .Namespace }}.labels.endpoints.example.com"
