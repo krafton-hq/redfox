@@ -1,0 +1,14 @@
+apiVersion: metadata.sbx-central.io/v1
+kind: ClusterMetadata
+metadata:
+  name: dev-alpha-aws-apne2-o01
+spec:
+  clusterName: dev-alpha-aws-apne2-o01
+  clusterRegion: ap-northeast-2
+  clusterGroup: dev-alpha
+  servicePhase: dev
+  serviceTag: alpha
+  clusterType: sbx-service
+  infraVendor: AWS
+  infraAccountId: "123123213"
+  clusterEngine: EKS

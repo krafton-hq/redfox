@@ -1,0 +1,11 @@
+apiVersion: metadata.sbx-central.io/v1
+kind: ClusterGroup
+metadata:
+  name: dev-alpha
+spec:
+  servicePhase: dev
+  serviceTag: alpha
+  clusterType: sbx-service
+  metricStore:
+    type: Thanos
+    s3Bucket: "sbx-thanos-dev-alpha"

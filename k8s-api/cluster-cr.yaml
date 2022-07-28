@@ -1,0 +1,21 @@
+apiVersion: metadata.sbx-central.io/v1
+kind: Cluster
+metadata:
+  name: dev-alpha-aws-apne2-o01
+spec:
+  clusterGroupRef:
+    name: dev-alpha
+  infrastructures:
+    infraVendor: AWS
+    infraAccountId: "123123213"
+    clusterEngine: EKS
+    clusterRegion: ap-northeast-2
+  roles:
+    ingameRole: false
+    outgameRole: true
+    centralRole: false
+status:
+  serviceAccountIssuer: "https://example.com"
+  awsIamExternalIdps:
+    "123123213": "arn:aws:iam::123123213:oidc-provider/oidc.eks.ap-northeast-2.amazonaws.com/id/6449927ED36871524969425FA8403849"
+    "3123123": "arn:aws:iam::3123123:oidc-provider/oidc.eks.ap-northeast-2.amazonaws.com/id/6449927ED36871524969425FA8403849"

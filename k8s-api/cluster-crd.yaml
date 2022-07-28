@@ -1,0 +1,90 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: clusters.metadata.sbx-central.io
+spec:
+  group: metadata.sbx-central.io
+  scope: Namespaced
+  names:
+    kind: Cluster
+    plural: clusters
+    singular: cluster
+    shortNames:
+      - cl
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                clusterGroupRef:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      nullable: false
+                  required:
+                    - name
+                infrastructures:
+                  type: object
+                  properties:
+                    infraVendor:
+                      type: string
+                      nullable: false
+                    infraAccountId:
+                      type: string
+                      nullable: false
+                    clusterEngine:
+                      type: string
+                      nullable: false
+                    clusterRegion:
+                      type: string
+                      nullable: false
+                  required:
+                    - infraVendor
+                    - infraAccountId
+                    - clusterEngine
+                    - clusterRegion
+                roles:
+                  type: object
+                  properties:
+                    ingameRole:
+                      type: boolean
+                      nullable: false
+                    outgameRole:
+                      type: boolean
+                      nullable: false
+                    centralRole:
+                      type: boolean
+                      nullable: false
+                  required:
+                    - ingameRole
+                    - outgameRole
+                    - centralRole
+              required:
+                - clusterGroupRef
+                - infrastructures
+                - roles
+            status:
+              type: object
+              properties:
+                serviceAccountIssuer:
+                  type: string
+                  nullable: false
+                awsIamExternalIdps:
+                  type: object
+                  additionalProperties:
+                    type: string
+                    nullable: false
+      additionalPrinterColumns:
+        - name: ClusterRegion
+          type: string
+          jsonPath: ".spec.infrastructures.clusterRegion"
+        - name: ClusterGroup
+          type: string
+          jsonPath: ".spec.clusterGroupRef.name"

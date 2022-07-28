@@ -1,0 +1,62 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: clustergroups.metadata.sbx-central.io
+spec:
+  group: metadata.sbx-central.io
+  scope: Namespaced
+  names:
+    kind: ClusterGroup
+    plural: clustergroups
+    singular: clustergroup
+    shortNames:
+      - clustergroup
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                servicePhase:
+                  type: string
+                  nullable: false
+                serviceTag:
+                  type: string
+                  nullable: false
+                clusterType:
+                  type: string
+                  nullable: false
+                  enum: ["sbx-service", "sbx-central", "nft-web3"]
+                metricStore:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: ["Thanos"]
+                      nullable: false
+                    s3Bucket:
+                      type: string
+                      nullable: false
+                  required:
+                    - type
+                    - s3Bucket
+              required:
+                - servicePhase
+                - serviceTag
+                - clusterType
+                - metricStore
+      additionalPrinterColumns:
+        - name: ServicePhase
+          type: string
+          jsonPath: ".spec.servicePhase"
+        - name: ClusterType
+          type: string
+          jsonPath: ".spec.clusterType"
+        - name: MetricStore
+          type: string
+          jsonPath: ".spec.metricStore.s3Bucket"
