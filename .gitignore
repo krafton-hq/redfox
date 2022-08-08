@@ -259,3 +259,5 @@ $RECYCLE.BIN/
 
 .idea/
 db/
+
+.tmp/

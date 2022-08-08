@@ -1,0 +1,14 @@
+apiVersion: metadata.sbx-central.io/v1alpha1
+kind: Cluster
+metadata:
+  name: my-first-cluster
+  namespace: default
+spec:
+  clusterName: dev-meta-aws-apne2-o01
+  clusterRegion: ap-northeast-2
+  clusterGroup: dev-meta
+  servicePhase: dev
+  serviceTag: meta
+  clusterEngine: EKS
+  infraVendor: AWS
+  infraAccountId: "1234567890"
