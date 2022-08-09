@@ -99,3 +99,13 @@ spec:
             - spec
       subresources:
         status: {}
+      additionalPrinterColumns:
+        - name: Repository
+          jsonPath: ".spec.gitRef.repository"
+          type: string
+        - name: Branch
+          jsonPath: ".spec.gitRef.branch"
+          type: string
+        - name: Count
+          jsonPath: ".spec.versionDetail.revision"
+          type: number

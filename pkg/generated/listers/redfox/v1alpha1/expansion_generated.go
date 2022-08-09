@@ -25,3 +25,11 @@ type VersionListerExpansion interface{}
 // VersionNamespaceListerExpansion allows custom methods to be added to
 // VersionNamespaceLister.
 type VersionNamespaceListerExpansion interface{}
+
+// VersionCountListerExpansion allows custom methods to be added to
+// VersionCountLister.
+type VersionCountListerExpansion interface{}
+
+// VersionCountNamespaceListerExpansion allows custom methods to be added to
+// VersionCountNamespaceLister.
+type VersionCountNamespaceListerExpansion interface{}

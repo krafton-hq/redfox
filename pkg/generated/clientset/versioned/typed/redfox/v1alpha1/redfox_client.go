@@ -15,6 +15,7 @@ type MetadataV1alpha1Interface interface {
 	ClustersGetter
 	LatestVersionsGetter
 	VersionsGetter
+	VersionCountsGetter
 }
 
 // MetadataV1alpha1Client is used to interact with features provided by the metadata.sbx-central.io group.
@@ -32,6 +33,10 @@ func (c *MetadataV1alpha1Client) LatestVersions(namespace string) LatestVersionI
 
 func (c *MetadataV1alpha1Client) Versions(namespace string) VersionInterface {
 	return newVersions(c, namespace)
+}
+
+func (c *MetadataV1alpha1Client) VersionCounts(namespace string) VersionCountInterface {
+	return newVersionCounts(c, namespace)
 }
 
 // NewForConfig creates a new MetadataV1alpha1Client for the given config.

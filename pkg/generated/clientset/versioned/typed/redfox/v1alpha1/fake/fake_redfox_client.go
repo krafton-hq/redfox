@@ -24,6 +24,10 @@ func (c *FakeMetadataV1alpha1) Versions(namespace string) v1alpha1.VersionInterf
 	return &FakeVersions{c, namespace}
 }
 
+func (c *FakeMetadataV1alpha1) VersionCounts(namespace string) v1alpha1.VersionCountInterface {
+	return &FakeVersionCounts{c, namespace}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeMetadataV1alpha1) RESTClient() rest.Interface {

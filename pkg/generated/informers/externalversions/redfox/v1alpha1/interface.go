@@ -14,6 +14,8 @@ type Interface interface {
 	LatestVersions() LatestVersionInformer
 	// Versions returns a VersionInformer.
 	Versions() VersionInformer
+	// VersionCounts returns a VersionCountInformer.
+	VersionCounts() VersionCountInformer
 }
 
 type version struct {
@@ -40,4 +42,9 @@ func (v *version) LatestVersions() LatestVersionInformer {
 // Versions returns a VersionInformer.
 func (v *version) Versions() VersionInformer {
 	return &versionInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// VersionCounts returns a VersionCountInformer.
+func (v *version) VersionCounts() VersionCountInformer {
+	return &versionCountInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
