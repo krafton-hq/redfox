@@ -18,6 +18,14 @@ type LatestVersionListerExpansion interface{}
 // LatestVersionNamespaceLister.
 type LatestVersionNamespaceListerExpansion interface{}
 
+// NatIpListerExpansion allows custom methods to be added to
+// NatIpLister.
+type NatIpListerExpansion interface{}
+
+// NatIpNamespaceListerExpansion allows custom methods to be added to
+// NatIpNamespaceLister.
+type NatIpNamespaceListerExpansion interface{}
+
 // VersionListerExpansion allows custom methods to be added to
 // VersionLister.
 type VersionListerExpansion interface{}

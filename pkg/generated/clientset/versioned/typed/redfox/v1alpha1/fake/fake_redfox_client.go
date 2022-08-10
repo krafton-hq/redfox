@@ -20,6 +20,10 @@ func (c *FakeMetadataV1alpha1) LatestVersions(namespace string) v1alpha1.LatestV
 	return &FakeLatestVersions{c, namespace}
 }
 
+func (c *FakeMetadataV1alpha1) NatIps(namespace string) v1alpha1.NatIpInterface {
+	return &FakeNatIps{c, namespace}
+}
+
 func (c *FakeMetadataV1alpha1) Versions(namespace string) v1alpha1.VersionInterface {
 	return &FakeVersions{c, namespace}
 }

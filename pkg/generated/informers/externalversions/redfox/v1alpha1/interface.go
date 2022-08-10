@@ -12,6 +12,8 @@ type Interface interface {
 	Clusters() ClusterInformer
 	// LatestVersions returns a LatestVersionInformer.
 	LatestVersions() LatestVersionInformer
+	// NatIps returns a NatIpInformer.
+	NatIps() NatIpInformer
 	// Versions returns a VersionInformer.
 	Versions() VersionInformer
 	// VersionCounts returns a VersionCountInformer.
@@ -37,6 +39,11 @@ func (v *version) Clusters() ClusterInformer {
 // LatestVersions returns a LatestVersionInformer.
 func (v *version) LatestVersions() LatestVersionInformer {
 	return &latestVersionInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// NatIps returns a NatIpInformer.
+func (v *version) NatIps() NatIpInformer {
+	return &natIpInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Versions returns a VersionInformer.

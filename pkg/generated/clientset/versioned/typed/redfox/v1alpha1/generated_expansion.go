@@ -6,6 +6,8 @@ type ClusterExpansion interface{}
 
 type LatestVersionExpansion interface{}
 
+type NatIpExpansion interface{}
+
 type VersionExpansion interface{}
 
 type VersionCountExpansion interface{}
