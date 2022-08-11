@@ -1,0 +1,14 @@
+# [WIP]
+apiVersion: metadata.sbx-central.io/v1alpha1
+kind: ServiceFarm
+metadata:
+  name: my-first-service
+  namespace: default
+spec:
+  servicePhase: dev
+  clusterGroup: dev-main
+  components:
+    outgame: aa
+    dedicated: bb
+    woodman: cc
+    baikal: dd

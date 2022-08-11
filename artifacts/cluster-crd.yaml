@@ -84,4 +84,3 @@ spec:
         - name: ClusterGroup
           type: string
           jsonPath: ".spec.clusterGroup"
-
