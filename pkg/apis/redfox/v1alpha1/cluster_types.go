@@ -21,7 +21,6 @@ type ClusterSpec struct {
 	ClusterGroup   string `json:"clusterGroup"`
 	ServicePhase   string `json:"servicePhase"`
 	ServiceTag     string `json:"serviceTag"`
-	ClusterType    string `json:"clusterType"`
 	InfraVendor    string `json:"infraVendor"`
 	InfraAccountId string `json:"infraAccountId"`
 	ClusterEngine  string `json:"clusterEngine"`
