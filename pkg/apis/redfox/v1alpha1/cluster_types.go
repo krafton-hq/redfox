@@ -12,7 +12,7 @@ type Cluster struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Spec   ClusterSpec   `json:"spec"`
-	Status ClusterStatus `json:"status"`
+	Status ClusterStatus `json:"status,omitempty"`
 }
 
 type ClusterSpec struct {
