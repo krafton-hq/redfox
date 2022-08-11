@@ -68,11 +68,14 @@ spec:
                 serviceAccountIssuer:
                   type: string
                   nullable: false
-                awsIamExternalIdps:
+                awsIamIdps:
                   type: object
                   additionalProperties:
                     type: string
                     nullable: false
+              required:
+                - apiserver
+                - serviceAccountIssuer
           required:
             - spec
       subresources:
