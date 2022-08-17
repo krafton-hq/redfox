@@ -87,3 +87,6 @@ spec:
         - name: ClusterGroup
           type: string
           jsonPath: ".spec.clusterGroup"
+        - name: Labels
+          type: string
+          jsonPath: ".metadata.labels"

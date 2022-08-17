@@ -43,3 +43,6 @@ spec:
         - name: Cidrs
           type: string
           jsonPath: ".spec.cidrs"
+        - name: Labels
+          type: string
+          jsonPath: ".metadata.labels"
