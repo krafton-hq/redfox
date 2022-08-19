@@ -1,0 +1,24 @@
+apiVersion: metadata.sbx-central.io/v1alpha1
+kind: Version
+metadata:
+  name: 0.0.1-master.231.abdce22
+  namespace: default
+spec:
+  versionDetail:
+    displayVersion: 0.0.1-master.231.abdce22
+    projectName: redfox
+    subProjectName: server
+    baseVersion: 0.0.1
+    revision: 231
+  gitRef:
+    branch: master
+    commit: 816a9e5bd84e8dc1f317d1a89f124a43a962800c
+    repository: redfox
+status:
+  artifacts:
+    - name: s3
+      type: binary
+      uri: s3://asdfasdf
+      humanFriendlyUri: ""
+      platform: windows/amd64
+      description: ""

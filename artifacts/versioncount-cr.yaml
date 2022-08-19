@@ -1,0 +1,10 @@
+apiVersion: metadata.sbx-central.io/v1alpha1
+kind: VersionCount
+metadata:
+  name: master-test
+  namespace: default
+spec:
+  count: 102
+  gitRef:
+    branch: master
+    repository: redfox

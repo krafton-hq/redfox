@@ -1,0 +1,48 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: natips.metadata.sbx-central.io
+spec:
+  group: metadata.sbx-central.io
+  scope: Namespaced
+  names:
+    kind: NatIp
+    plural: natips
+    singular: natip
+    shortNames:
+      - nat
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                ipType:
+                  type: string
+                  enum: [ "Ipv4", "Ipv6" ]
+                  nullable: false
+                cidrs:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+                    format: cidr
+                    nullable: false
+              required:
+                - ipType
+                - cidrs
+      additionalPrinterColumns:
+        - name: IpType
+          type: string
+          jsonPath: ".spec.ipType"
+        - name: Cidrs
+          type: string
+          jsonPath: ".spec.cidrs"
+        - name: Labels
+          type: string
+          jsonPath: ".metadata.labels"

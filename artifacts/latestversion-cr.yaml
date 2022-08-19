@@ -1,0 +1,13 @@
+apiVersion: metadata.sbx-central.io/v1alpha1
+kind: LatestVersion
+metadata:
+  name: redfox-master
+  namespace: default
+spec:
+  gitRef:
+    branch: master
+    repository: redfox
+# Cannot update status via kubectl, Cause kubectl does not support update subresource api
+status:
+  versionRef:
+    name: 0.0.1-master.231.abdce22

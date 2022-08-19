@@ -1,0 +1,111 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: versions.metadata.sbx-central.io
+spec:
+  group: metadata.sbx-central.io
+  scope: Namespaced
+  names:
+    kind: Version
+    plural: versions
+    singular: version
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                versionDetail:
+                  type: object
+                  properties:
+                    displayVersion:
+                      type: string
+                      nullable: false
+                    projectName:
+                      type: string
+                      nullable: false
+                    subProjectName:
+                      type: string
+                      nullable: true
+                    baseVersion:
+                      type: string
+                      nullable: false
+                    revision:
+                      type: number
+                      nullable: false
+                  required:
+                    - displayVersion
+                    - projectName
+                    - baseVersion
+                    - revision
+                gitRef:
+                  type: object
+                  properties:
+                    branch:
+                      type: string
+                      nullable: false
+                    commit:
+                      type: string
+                      nullable: false
+                    repository:
+                      type: string
+                      nullable: false
+                  required:
+                    - branch
+                    - commit
+                    - repository
+              required:
+                - versionDetail
+                - gitRef
+            status:
+              type: object
+              properties:
+                artifacts:
+                  type: array
+                  x-kubernetes-list-map-keys:
+                    - name
+                  x-kubernetes-list-type: map
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        nullable: false
+                      type:
+                        type: string
+                        nullable: false
+                      uri:
+                        type: string
+                        nullable: false
+                      platform:
+                        type: string
+                        nullable: false
+                      humanFriendlyUri:
+                        type: string
+                        nullable: false
+                      description:
+                        type: string
+                        nullable: false
+                    required:
+                      - name
+                      - type
+                      - uri
+          required:
+            - spec
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Repository
+          jsonPath: ".spec.gitRef.repository"
+          type: string
+        - name: Branch
+          jsonPath: ".spec.gitRef.branch"
+          type: string
+        - name: Count
+          jsonPath: ".spec.versionDetail.revision"
+          type: number
