@@ -1,4 +1,4 @@
-module github.com/krafton-hq/red-fox
+module github.com/krafton-hq/redfox
 
 go 1.18
 

@@ -3,8 +3,8 @@
 package redfox
 
 import (
-	internalinterfaces "github.com/krafton-hq/red-fox/pkg/generated/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/krafton-hq/red-fox/pkg/generated/informers/externalversions/redfox/v1alpha1"
+	internalinterfaces "github.com/krafton-hq/redfox/pkg/generated/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/krafton-hq/redfox/pkg/generated/informers/externalversions/redfox/v1alpha1"
 )
 
 // Interface provides access to each of this group's versions.

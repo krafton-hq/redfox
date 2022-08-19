@@ -1,7 +1,7 @@
 package v1alpha1
 
 import (
-	"github.com/krafton-hq/red-fox/pkg/apis/redfox"
+	"github.com/krafton-hq/redfox/pkg/apis/redfox"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"

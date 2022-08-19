@@ -3,7 +3,7 @@
 package v1alpha1
 
 import (
-	internalinterfaces "github.com/krafton-hq/red-fox/pkg/generated/informers/externalversions/internalinterfaces"
+	internalinterfaces "github.com/krafton-hq/redfox/pkg/generated/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to all the informers in this group version.

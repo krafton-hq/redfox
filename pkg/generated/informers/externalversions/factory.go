@@ -7,9 +7,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/krafton-hq/red-fox/pkg/generated/clientset/versioned"
-	internalinterfaces "github.com/krafton-hq/red-fox/pkg/generated/informers/externalversions/internalinterfaces"
-	redfox "github.com/krafton-hq/red-fox/pkg/generated/informers/externalversions/redfox"
+	versioned "github.com/krafton-hq/redfox/pkg/generated/clientset/versioned"
+	internalinterfaces "github.com/krafton-hq/redfox/pkg/generated/informers/externalversions/internalinterfaces"
+	redfox "github.com/krafton-hq/redfox/pkg/generated/informers/externalversions/redfox"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

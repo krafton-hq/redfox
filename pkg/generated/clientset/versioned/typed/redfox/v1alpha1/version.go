@@ -6,8 +6,8 @@ import (
 	"context"
 	"time"
 
-	v1alpha1 "github.com/krafton-hq/red-fox/pkg/apis/redfox/v1alpha1"
-	scheme "github.com/krafton-hq/red-fox/pkg/generated/clientset/versioned/scheme"
+	v1alpha1 "github.com/krafton-hq/redfox/pkg/apis/redfox/v1alpha1"
+	scheme "github.com/krafton-hq/redfox/pkg/generated/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"

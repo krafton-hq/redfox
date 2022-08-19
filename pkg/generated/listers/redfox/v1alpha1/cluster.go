@@ -3,7 +3,7 @@
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/krafton-hq/red-fox/pkg/apis/redfox/v1alpha1"
+	v1alpha1 "github.com/krafton-hq/redfox/pkg/apis/redfox/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"

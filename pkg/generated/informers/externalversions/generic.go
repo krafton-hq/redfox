@@ -5,7 +5,7 @@ package externalversions
 import (
 	"fmt"
 
-	v1alpha1 "github.com/krafton-hq/red-fox/pkg/apis/redfox/v1alpha1"
+	v1alpha1 "github.com/krafton-hq/redfox/pkg/apis/redfox/v1alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
