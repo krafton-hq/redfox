@@ -19,6 +19,15 @@ type ClusterRole string
 
 const ClusterRoleIngame ClusterRole = "ingame"
 const ClusterRoleOutgame ClusterRole = "outgame"
+const ClusterRoleCentral ClusterRole = "central"
+
+var clusterRoles = []ClusterRole{ClusterRoleIngame, ClusterRoleOutgame, ClusterRoleCentral}
+
+func ClusterRoles() []ClusterRole {
+	clusterRoles2 := make([]ClusterRole, len(clusterRoles))
+	copy(clusterRoles, clusterRoles2)
+	return clusterRoles2
+}
 
 type ClusterSpec struct {
 	ClusterName    string        `json:"clusterName"`

@@ -48,8 +48,8 @@ spec:
                   type: array
                   items:
                     type: string
-                    enum: ["ingame", "outgame", "central"]
                     nullable: false
+                  nullable: false
               required:
                 - clusterName
                 - clusterRegion
