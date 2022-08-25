@@ -15,15 +15,21 @@ type Cluster struct {
 	Status ClusterStatus `json:"status,omitempty"`
 }
 
+type ClusterRole string
+
+const ClusterRoleIngame ClusterRole = "ingame"
+const ClusterRoleOutgame ClusterRole = "outgame"
+
 type ClusterSpec struct {
-	ClusterName    string `json:"clusterName"`
-	ClusterRegion  string `json:"clusterRegion"`
-	ClusterGroup   string `json:"clusterGroup"`
-	ServicePhase   string `json:"servicePhase"`
-	ServiceTag     string `json:"serviceTag"`
-	InfraVendor    string `json:"infraVendor"`
-	InfraAccountId string `json:"infraAccountId"`
-	ClusterEngine  string `json:"clusterEngine"`
+	ClusterName    string        `json:"clusterName"`
+	ClusterRegion  string        `json:"clusterRegion"`
+	ClusterGroup   string        `json:"clusterGroup"`
+	ServicePhase   string        `json:"servicePhase"`
+	ServiceTag     string        `json:"serviceTag"`
+	InfraVendor    string        `json:"infraVendor"`
+	InfraAccountId string        `json:"infraAccountId"`
+	ClusterEngine  string        `json:"clusterEngine"`
+	Roles          []ClusterRole `json:"roles"`
 }
 
 type ClusterStatus struct {
