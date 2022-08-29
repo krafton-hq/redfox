@@ -11,4 +11,4 @@ spec:
   serviceTag: meta
   clusterEngine: EKS
   infraVendor: AWS
-  infraAccountId: "1234567890"
+  infraAccountId: "679597515436"

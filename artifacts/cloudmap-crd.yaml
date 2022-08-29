@@ -1,0 +1,81 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: cloudmaps.metadata.sbx-central.io
+spec:
+  group: metadata.sbx-central.io
+  scope: Namespaced
+  names:
+    kind: CloudMap
+    plural: cloudmaps
+    singular: cloudmap
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                argocd:
+                  type: object
+                  properties:
+                    endpoint:
+                      type: string
+                      nullable: false
+                    clusterRegion:
+                      type: string
+                      nullable: false
+                    clusterName:
+                      type: string
+                      nullable: false
+                  required:
+                    - endpoint
+                    - clusterRegion
+                    - clusterName
+                containerRegistries:
+                  type: object
+                  properties:
+                    dedicatedServerShip:
+                      type: string
+                      nullable: false
+                    dedicatedServerDev:
+                      type: string
+                      nullable: false
+                  required:
+                    - dedicatedServerShip
+                    - dedicatedServerDev
+                identity:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      nullable: false
+                    infraAccountId:
+                      type: string
+                      nullable: false
+                    infraVendor:
+                      type: string
+                      nullable: false
+                    regionGroup:
+                      type: string
+                      enum: ["EastAsia", "SouthAsia", "Europe", "NorthAmerica"]
+                      nullable: false
+                  required:
+                    - name
+                    - infraAccountId
+                    - infraVendor
+                    - regionGroup
+              required:
+                - argocd
+                - containerRegistries
+                - identity
+          required:
+            - spec
+      additionalPrinterColumns:
+        - name: ClusterRegion
+          type: string
+          jsonPath: ".spec.clusterRegion"
