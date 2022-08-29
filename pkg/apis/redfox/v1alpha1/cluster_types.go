@@ -15,15 +15,30 @@ type Cluster struct {
 	Status ClusterStatus `json:"status,omitempty"`
 }
 
+type ClusterRole string
+
+const ClusterRoleIngame ClusterRole = "ingame"
+const ClusterRoleOutgame ClusterRole = "outgame"
+const ClusterRoleCentral ClusterRole = "central"
+
+var clusterRoles = []ClusterRole{ClusterRoleIngame, ClusterRoleOutgame, ClusterRoleCentral}
+
+func ClusterRoles() []ClusterRole {
+	clusterRoles2 := make([]ClusterRole, len(clusterRoles))
+	copy(clusterRoles, clusterRoles2)
+	return clusterRoles2
+}
+
 type ClusterSpec struct {
-	ClusterName    string `json:"clusterName"`
-	ClusterRegion  string `json:"clusterRegion"`
-	ClusterGroup   string `json:"clusterGroup"`
-	ServicePhase   string `json:"servicePhase"`
-	ServiceTag     string `json:"serviceTag"`
-	InfraVendor    string `json:"infraVendor"`
-	InfraAccountId string `json:"infraAccountId"`
-	ClusterEngine  string `json:"clusterEngine"`
+	ClusterName    string        `json:"clusterName"`
+	ClusterRegion  string        `json:"clusterRegion"`
+	ClusterGroup   string        `json:"clusterGroup"`
+	ServicePhase   string        `json:"servicePhase"`
+	ServiceTag     string        `json:"serviceTag"`
+	InfraVendor    string        `json:"infraVendor"`
+	InfraAccountId string        `json:"infraAccountId"`
+	ClusterEngine  string        `json:"clusterEngine"`
+	Roles          []ClusterRole `json:"roles"`
 }
 
 type ClusterStatus struct {

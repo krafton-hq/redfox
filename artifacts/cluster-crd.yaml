@@ -44,6 +44,12 @@ spec:
                 infraAccountId:
                   type: string
                   nullable: false
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    nullable: false
+                  nullable: false
               required:
                 - clusterName
                 - clusterRegion
