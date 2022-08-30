@@ -15,6 +15,7 @@ type MetadataV1alpha1Interface interface {
 	ClustersGetter
 	LatestVersionsGetter
 	NatIpsGetter
+	RegionMetadatasGetter
 	VersionsGetter
 	VersionCountsGetter
 }
@@ -34,6 +35,10 @@ func (c *MetadataV1alpha1Client) LatestVersions(namespace string) LatestVersionI
 
 func (c *MetadataV1alpha1Client) NatIps(namespace string) NatIpInterface {
 	return newNatIps(c, namespace)
+}
+
+func (c *MetadataV1alpha1Client) RegionMetadatas(namespace string) RegionMetadataInterface {
+	return newRegionMetadatas(c, namespace)
 }
 
 func (c *MetadataV1alpha1Client) Versions(namespace string) VersionInterface {

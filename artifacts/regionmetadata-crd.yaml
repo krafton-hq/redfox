@@ -38,16 +38,9 @@ spec:
                     - clusterName
                 containerRegistries:
                   type: object
-                  properties:
-                    dedicatedServerShip:
-                      type: string
-                      nullable: false
-                    dedicatedServerDev:
-                      type: string
-                      nullable: false
-                  required:
-                    - dedicatedServerShip
-                    - dedicatedServerDev
+                  additionalProperties:
+                    type: string
+                    nullable: false
                 identity:
                   type: object
                   properties:
@@ -71,7 +64,6 @@ spec:
                     - regionGroup
               required:
                 - argocd
-                - containerRegistries
                 - identity
           required:
             - spec

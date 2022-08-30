@@ -1,5 +1,5 @@
 apiVersion: metadata.sbx-central.io/v1alpha1
-kind: CloudMap
+kind: RegionMetadata
 metadata:
   name: ap-northeast-2.679597515436
   labels:
@@ -20,7 +20,7 @@ spec:
     regionGroup: EastAsia
 ---
 apiVersion: metadata.sbx-central.io/v1alpha1
-kind: CloudMap
+kind: RegionMetadata
 metadata:
   name: koreacentral.112681f6-e9f2-46e3-ac06-702c5dd297c7
   labels:
