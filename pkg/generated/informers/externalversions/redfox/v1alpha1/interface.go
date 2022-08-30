@@ -14,6 +14,8 @@ type Interface interface {
 	LatestVersions() LatestVersionInformer
 	// NatIps returns a NatIpInformer.
 	NatIps() NatIpInformer
+	// RegionMetadatas returns a RegionMetadataInformer.
+	RegionMetadatas() RegionMetadataInformer
 	// Versions returns a VersionInformer.
 	Versions() VersionInformer
 	// VersionCounts returns a VersionCountInformer.
@@ -44,6 +46,11 @@ func (v *version) LatestVersions() LatestVersionInformer {
 // NatIps returns a NatIpInformer.
 func (v *version) NatIps() NatIpInformer {
 	return &natIpInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// RegionMetadatas returns a RegionMetadataInformer.
+func (v *version) RegionMetadatas() RegionMetadataInformer {
+	return &regionMetadataInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Versions returns a VersionInformer.

@@ -8,6 +8,8 @@ type LatestVersionExpansion interface{}
 
 type NatIpExpansion interface{}
 
+type RegionMetadataExpansion interface{}
+
 type VersionExpansion interface{}
 
 type VersionCountExpansion interface{}

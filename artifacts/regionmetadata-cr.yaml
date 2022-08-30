@@ -1,0 +1,41 @@
+apiVersion: metadata.sbx-central.io/v1alpha1
+kind: RegionMetadata
+metadata:
+  name: ap-northeast-2.679597515436
+  labels:
+    clusterRegion: ap-northeast-2
+    infraAccountId: "679597515436"
+spec:
+  argocd:
+    endpoint: https://argocd-ea.example.com
+    clusterRegion: ap-northeast-2
+    clusterName: central-ea
+  containerRegistries:
+    dedicatedServerShip: 679597515436.dkr.ecr.ap-northeast-2.amazonaws.com/dedicated-server-ship
+    dedicatedServerDev: 679597515436.dkr.ecr.ap-northeast-2.amazonaws.com/dedicated-server-dev
+  identity:
+    name: ap-northeast-2
+    infraAccountId: "679597515436"
+    infraVendor: AWS
+    regionGroup: EastAsia
+---
+apiVersion: metadata.sbx-central.io/v1alpha1
+kind: RegionMetadata
+metadata:
+  name: koreacentral.112681f6-e9f2-46e3-ac06-702c5dd297c7
+  labels:
+    clusterRegion: koreacentral
+    infraAccountId: "112681f6-e9f2-46e3-ac06-702c5dd297c7"
+spec:
+  argocd:
+    endpoint: https://argocd-ea.example.com
+    clusterRegion: ap-northeast-2
+    clusterName: central-ea
+  containerRegistries:
+    dedicatedServerShip: 6mcr.microsoft.com/azure-cli
+    dedicatedServerDev: mcr.microsoft.com/azure-cli
+  identity:
+    name: koreacentral
+    infraAccountId: "112681f6-e9f2-46e3-ac06-702c5dd297c7"
+    infraVendor: Azure
+    regionGroup: EastAsia

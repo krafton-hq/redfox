@@ -26,6 +26,14 @@ type NatIpListerExpansion interface{}
 // NatIpNamespaceLister.
 type NatIpNamespaceListerExpansion interface{}
 
+// RegionMetadataListerExpansion allows custom methods to be added to
+// RegionMetadataLister.
+type RegionMetadataListerExpansion interface{}
+
+// RegionMetadataNamespaceListerExpansion allows custom methods to be added to
+// RegionMetadataNamespaceLister.
+type RegionMetadataNamespaceListerExpansion interface{}
+
 // VersionListerExpansion allows custom methods to be added to
 // VersionLister.
 type VersionListerExpansion interface{}
