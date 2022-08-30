@@ -6,9 +6,9 @@ spec:
   group: metadata.sbx-central.io
   scope: Namespaced
   names:
-    kind: CloudMap
-    plural: cloudmaps
-    singular: cloudmap
+    kind: RegionMetadata
+    plural: regionmetadatas
+    singular: regionmetadata
   versions:
     - name: v1alpha1
       served: true
@@ -76,6 +76,6 @@ spec:
           required:
             - spec
       additionalPrinterColumns:
-        - name: ClusterRegion
+        - name: RegionGroup
           type: string
-          jsonPath: ".spec.clusterRegion"
+          jsonPath: ".spec.identity.regionGroup"
