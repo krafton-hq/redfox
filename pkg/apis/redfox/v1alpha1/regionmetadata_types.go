@@ -30,3 +30,12 @@ type RegionMetadataIdentity struct {
 	InfraVendor    string `json:"infraVendor"`
 	RegionGroup    string `json:"regionGroup"`
 }
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type RegionMetadataList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []RegionMetadata `json:"items"`
+}
