@@ -34,6 +34,12 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&ClusterList{},
 		&Version{},
 		&VersionList{},
+		&NatIp{},
+		&NatIpList{},
+		&LatestVersion{},
+		&LatestVersionList{},
+		&VersionCount{},
+		&VersionCountList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
