@@ -13,6 +13,7 @@ import (
 type MetadataV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	ClustersGetter
+	IngressAddressesGetter
 	LatestVersionsGetter
 	NatIpsGetter
 	RegionMetadatasGetter
@@ -27,6 +28,10 @@ type MetadataV1alpha1Client struct {
 
 func (c *MetadataV1alpha1Client) Clusters(namespace string) ClusterInterface {
 	return newClusters(c, namespace)
+}
+
+func (c *MetadataV1alpha1Client) IngressAddresses(namespace string) IngressAddressInterface {
+	return newIngressAddresses(c, namespace)
 }
 
 func (c *MetadataV1alpha1Client) LatestVersions(namespace string) LatestVersionInterface {

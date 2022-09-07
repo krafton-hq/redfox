@@ -10,6 +10,14 @@ type ClusterListerExpansion interface{}
 // ClusterNamespaceLister.
 type ClusterNamespaceListerExpansion interface{}
 
+// IngressAddressListerExpansion allows custom methods to be added to
+// IngressAddressLister.
+type IngressAddressListerExpansion interface{}
+
+// IngressAddressNamespaceListerExpansion allows custom methods to be added to
+// IngressAddressNamespaceLister.
+type IngressAddressNamespaceListerExpansion interface{}
+
 // LatestVersionListerExpansion allows custom methods to be added to
 // LatestVersionLister.
 type LatestVersionListerExpansion interface{}

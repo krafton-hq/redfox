@@ -40,6 +40,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&LatestVersionList{},
 		&VersionCount{},
 		&VersionCountList{},
+		&IngressAddress{},
+		&IngressAddressList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

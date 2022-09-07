@@ -39,6 +39,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=metadata.sbx-central.io, Version=v1alpha1
 	case v1alpha1.SchemeGroupVersion.WithResource("clusters"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Metadata().V1alpha1().Clusters().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("ingressaddresses"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Metadata().V1alpha1().IngressAddresses().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("latestversions"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Metadata().V1alpha1().LatestVersions().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("natips"):

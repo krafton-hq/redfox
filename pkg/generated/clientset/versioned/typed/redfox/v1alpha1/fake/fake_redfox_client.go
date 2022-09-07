@@ -16,6 +16,10 @@ func (c *FakeMetadataV1alpha1) Clusters(namespace string) v1alpha1.ClusterInterf
 	return &FakeClusters{c, namespace}
 }
 
+func (c *FakeMetadataV1alpha1) IngressAddresses(namespace string) v1alpha1.IngressAddressInterface {
+	return &FakeIngressAddresses{c, namespace}
+}
+
 func (c *FakeMetadataV1alpha1) LatestVersions(namespace string) v1alpha1.LatestVersionInterface {
 	return &FakeLatestVersions{c, namespace}
 }

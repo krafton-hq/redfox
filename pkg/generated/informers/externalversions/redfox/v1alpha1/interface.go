@@ -10,6 +10,8 @@ import (
 type Interface interface {
 	// Clusters returns a ClusterInformer.
 	Clusters() ClusterInformer
+	// IngressAddresses returns a IngressAddressInformer.
+	IngressAddresses() IngressAddressInformer
 	// LatestVersions returns a LatestVersionInformer.
 	LatestVersions() LatestVersionInformer
 	// NatIps returns a NatIpInformer.
@@ -36,6 +38,11 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 // Clusters returns a ClusterInformer.
 func (v *version) Clusters() ClusterInformer {
 	return &clusterInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// IngressAddresses returns a IngressAddressInformer.
+func (v *version) IngressAddresses() IngressAddressInformer {
+	return &ingressAddressInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // LatestVersions returns a LatestVersionInformer.

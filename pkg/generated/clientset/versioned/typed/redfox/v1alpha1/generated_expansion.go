@@ -4,6 +4,8 @@ package v1alpha1
 
 type ClusterExpansion interface{}
 
+type IngressAddressExpansion interface{}
+
 type LatestVersionExpansion interface{}
 
 type NatIpExpansion interface{}
