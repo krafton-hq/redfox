@@ -1,0 +1,8 @@
+apiVersion: metadata.sbx-central.io/v1alpha1
+kind: IngressAddress
+metadata:
+  name: test
+spec:
+  urls:
+    - https://naver.com
+    - https://google.com

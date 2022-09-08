@@ -15,7 +15,7 @@ type IngressAddress struct {
 }
 
 type IngressAddressSpec struct {
-	Urls []string
+	Urls []string `json:"urls"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
