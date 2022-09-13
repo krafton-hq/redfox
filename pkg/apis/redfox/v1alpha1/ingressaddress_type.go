@@ -15,7 +15,20 @@ type IngressAddress struct {
 }
 
 type IngressAddressSpec struct {
-	Urls []string `json:"urls"`
+	Default IngressAddressSpecDefault `json:"default"`
+	Specs   IngressAddressSpecs       `json:"specs"`
+}
+
+type IngressAddressSpecDefault struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Protocol string `json:"protocol"`
+}
+
+type IngressAddressSpecs struct {
+	Hosts     []string `json:"hosts"`
+	Ports     []int    `json:"ports"`
+	Protocols []string `json:"protocols"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

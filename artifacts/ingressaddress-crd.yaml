@@ -22,18 +22,57 @@ spec:
             spec:
               type: object
               properties:
-                urls:
-                  type: array
-                  minItems: 1
-                  items:
-                    type: string
-                    nullable: false
+                default:
+                  type: object
+                  properties:
+                    host:
+                      type: string
+                      nullable: false
+                    port:
+                      type: number
+                      nullable: false
+                    protocol:
+                      type: string
+                      nullable: false
+                  required:
+                    - host
+                    - port
+                    - protocol
+                specs:
+                  type: object
+                  properties:
+                    hosts:
+                      type: array
+                      minItems: 1
+                      items:
+                        type: string
+                        nullable: false
+                    ports:
+                      type: array
+                      minItems: 1
+                      items:
+                        type: number
+                        nullable: false
+                    protocols:
+                      type: array
+                      minItems: 1
+                      items:
+                        type: string
+                        nullable: false
+                  required:
+                    - hosts
+                    - ports
+                    - protocols
               required:
-                - urls
+                - default
+                - specs
       additionalPrinterColumns:
-        - name: Urls
+        - name: Host
           type: string
-          jsonPath: ".spec.urls"
+          jsonPath: ".spec.default.host"
+        - name: Protocol
+          type: string
+          jsonPath: ".spec.default.protocol"
         - name: Labels
           type: string
           jsonPath: ".metadata.labels"

@@ -3,6 +3,17 @@ kind: IngressAddress
 metadata:
   name: test
 spec:
-  urls:
-    - https://naver.com
-    - https://google.com
+  default:
+    host: example.com
+    port: 443
+    protocol: https
+  specs:
+    hosts:
+      - example.com
+      - direct.example.com
+    ports:
+      - 443
+      - 80
+    protocols:
+      - https
+      - http
