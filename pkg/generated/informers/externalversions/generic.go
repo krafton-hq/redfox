@@ -41,6 +41,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Metadata().V1alpha1().Clusters().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("ingressaddresses"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Metadata().V1alpha1().IngressAddresses().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("latestcommits"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Metadata().V1alpha1().LatestCommits().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("latestversions"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Metadata().V1alpha1().LatestVersions().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("natips"):

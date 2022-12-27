@@ -20,6 +20,10 @@ func (c *FakeMetadataV1alpha1) IngressAddresses(namespace string) v1alpha1.Ingre
 	return &FakeIngressAddresses{c, namespace}
 }
 
+func (c *FakeMetadataV1alpha1) LatestCommits(namespace string) v1alpha1.LatestCommitInterface {
+	return &FakeLatestCommits{c, namespace}
+}
+
 func (c *FakeMetadataV1alpha1) LatestVersions(namespace string) v1alpha1.LatestVersionInterface {
 	return &FakeLatestVersions{c, namespace}
 }

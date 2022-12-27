@@ -18,6 +18,14 @@ type IngressAddressListerExpansion interface{}
 // IngressAddressNamespaceLister.
 type IngressAddressNamespaceListerExpansion interface{}
 
+// LatestCommitListerExpansion allows custom methods to be added to
+// LatestCommitLister.
+type LatestCommitListerExpansion interface{}
+
+// LatestCommitNamespaceListerExpansion allows custom methods to be added to
+// LatestCommitNamespaceLister.
+type LatestCommitNamespaceListerExpansion interface{}
+
 // LatestVersionListerExpansion allows custom methods to be added to
 // LatestVersionLister.
 type LatestVersionListerExpansion interface{}

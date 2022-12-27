@@ -12,6 +12,8 @@ type Interface interface {
 	Clusters() ClusterInformer
 	// IngressAddresses returns a IngressAddressInformer.
 	IngressAddresses() IngressAddressInformer
+	// LatestCommits returns a LatestCommitInformer.
+	LatestCommits() LatestCommitInformer
 	// LatestVersions returns a LatestVersionInformer.
 	LatestVersions() LatestVersionInformer
 	// NatIps returns a NatIpInformer.
@@ -43,6 +45,11 @@ func (v *version) Clusters() ClusterInformer {
 // IngressAddresses returns a IngressAddressInformer.
 func (v *version) IngressAddresses() IngressAddressInformer {
 	return &ingressAddressInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// LatestCommits returns a LatestCommitInformer.
+func (v *version) LatestCommits() LatestCommitInformer {
+	return &latestCommitInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // LatestVersions returns a LatestVersionInformer.

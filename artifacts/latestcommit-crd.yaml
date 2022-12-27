@@ -1,0 +1,66 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: latestcommit.metadata.sbx-central.io
+spec:
+  group: metadata.sbx-central.io
+  scope: Namespaced
+  names:
+    kind: LatestCommit
+    plural: latestcommits
+    singular: latestcommit
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                gitRef:
+                  type: object
+                  properties:
+                    branch:
+                      type: string
+                      nullable: false
+                    repository:
+                      type: string
+                      nullable: false
+                  required:
+                    - branch
+                    - repository
+              required:
+                - gitRef
+            status:
+              type: object
+              properties:
+                commit:
+                  type: string
+                  nullable: false
+                commitTimestamp:
+                  type: string
+                  nullable: false
+                syncTimestamp:
+                  type: string
+                  nullable: false
+              required:
+                - commit
+                - commitTimestamp
+                - syncTimestamp
+          required:
+            - spec
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Repository
+          jsonPath: ".spec.gitRef.repository"
+          type: string
+        - name: Branch
+          jsonPath: ".spec.gitRef.branch"
+          type: string
+        - name: Version
+          jsonPath: ".status.commitTimestamp"
+          type: string

@@ -6,6 +6,8 @@ type ClusterExpansion interface{}
 
 type IngressAddressExpansion interface{}
 
+type LatestCommitExpansion interface{}
+
 type LatestVersionExpansion interface{}
 
 type NatIpExpansion interface{}

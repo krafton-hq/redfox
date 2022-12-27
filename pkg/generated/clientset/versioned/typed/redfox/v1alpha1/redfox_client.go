@@ -14,6 +14,7 @@ type MetadataV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	ClustersGetter
 	IngressAddressesGetter
+	LatestCommitsGetter
 	LatestVersionsGetter
 	NatIpsGetter
 	RegionMetadatasGetter
@@ -32,6 +33,10 @@ func (c *MetadataV1alpha1Client) Clusters(namespace string) ClusterInterface {
 
 func (c *MetadataV1alpha1Client) IngressAddresses(namespace string) IngressAddressInterface {
 	return newIngressAddresses(c, namespace)
+}
+
+func (c *MetadataV1alpha1Client) LatestCommits(namespace string) LatestCommitInterface {
+	return newLatestCommits(c, namespace)
 }
 
 func (c *MetadataV1alpha1Client) LatestVersions(namespace string) LatestVersionInterface {
