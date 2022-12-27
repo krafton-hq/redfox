@@ -41,10 +41,10 @@ spec:
                   type: string
                   nullable: false
                 commitTimestamp:
-                  type: string
+                  type: date
                   nullable: false
                 syncTimestamp:
-                  type: string
+                  type: date
                   nullable: false
               required:
                 - commit

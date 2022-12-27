@@ -23,9 +23,9 @@ type LatestCommitGitRef struct {
 }
 
 type LatestCommitStatus struct {
-	Commit          string `json:"commit"`
-	CommitTimestamp string `json:"commitTimestamp"`
-	SyncTimestamp   string `json:"syncTimestamp"`
+	Commit          string      `json:"commit"`
+	CommitTimestamp metav1.Time `json:"commitTimestamp"`
+	SyncTimestamp   metav1.Time `json:"syncTimestamp"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
