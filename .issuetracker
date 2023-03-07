@@ -2,6 +2,10 @@
 #
 # (note that '\' need to be escaped).
 
+[issuetracker "Krafton JIRA Rule MIGALOO"]
+  regex = "MIGALOO-(\\d+)"
+  url = "https://jira.krafton.com/browse/MIGALOO-$1"
+
 [issuetracker "Krafton JIRA Rule META"]
   regex = "META-(\\d+)"
   url = "https://jira.krafton.com/browse/META-$1"
@@ -9,10 +13,6 @@
 [issuetracker "Krafton JIRA Rule ANUY"]
   regex = "ANUY-(\\d+)"
   url = "https://jira.krafton.com/browse/ANUY-$1"
-
-[issuetracker "Krafton JIRA Rule ASKSBX"]
-  regex = "ASKSBX-(\\d+)"
-  url = "https://jira.krafton.com/browse/ASKSBX-$1"
 
 [issuetracker "Krafton GitHub Enterprise Rule"]
   regex = "#(\\d+)"
