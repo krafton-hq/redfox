@@ -1,3 +1,7 @@
+[bugtraq "JIRA-MIGALOO"]
+	url = https://jira.krafton.com/browse/%BUGID%
+	logregex = (MIGALOO-\\d+)
+
 [bugtraq "JIRA-META"]
 	url = https://jira.krafton.com/browse/%BUGID%
 	logregex = (META-\\d+)
