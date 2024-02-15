@@ -30,15 +30,17 @@ func ClusterRoles() []ClusterRole {
 }
 
 type ClusterSpec struct {
-	ClusterName    string        `json:"clusterName"`
-	ClusterRegion  string        `json:"clusterRegion"`
-	ClusterGroup   string        `json:"clusterGroup"`
-	ServicePhase   string        `json:"servicePhase"`
-	ServiceTag     string        `json:"serviceTag"`
-	InfraVendor    string        `json:"infraVendor"`
-	InfraAccountId string        `json:"infraAccountId"`
-	ClusterEngine  string        `json:"clusterEngine"`
-	Roles          []ClusterRole `json:"roles"`
+	ClusterName       string        `json:"clusterName"`
+	ClusterRegion     string        `json:"clusterRegion"`
+	ClusterGroup      string        `json:"clusterGroup"`
+	ServicePhase      string        `json:"servicePhase"`
+	ServiceTag        string        `json:"serviceTag"`
+	InfraVendor       string        `json:"infraVendor"`
+	InfraAccountId    string        `json:"infraAccountId"`
+	ClusterEngine     string        `json:"clusterEngine"`
+	Roles             []ClusterRole `json:"roles"`
+	VpcId             string        `json:"vpcId"`
+	DatabaseSubnetIds []string      `json:"databaseSubnetIds,omitempty"`
 }
 
 type ClusterStatus struct {

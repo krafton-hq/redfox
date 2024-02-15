@@ -45,6 +45,16 @@ spec:
                     clusterRegion:
                       type: string
                       nullable: false
+                    vpcId:
+                      type: string
+                      nullable: false
+                    databaseSubnetIds:
+                      type: array
+                      minItems: 1
+                      items:
+                        type: string
+                        nullable: false
+                      nullable: false
                   required:
                     - infraVendor
                     - infraAccountId
