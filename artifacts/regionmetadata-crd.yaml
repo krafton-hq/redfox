@@ -55,7 +55,7 @@ spec:
                       nullable: false
                     regionGroup:
                       type: string
-                      enum: ["EastAsia", "SouthAsia", "Europe", "NorthAmerica"]
+                      enum: ["EastAsia", "SouthAsia", "Europe", "NorthAmerica", "SouthAmerica"]
                       nullable: false
                   required:
                     - name
