@@ -2,6 +2,14 @@
 #
 # (note that '\' need to be escaped).
 
+[issuetracker "OVERDARE JIRA Rule OVDR"]
+  regex = "OVDR-(\\d+)"
+  url = "https://overdare-org.atlassian.net/browse/OVDR-$1"
+
+[issuetracker "OVERDARE JIRA Rule QA"]
+  regex = "QA-(\\d+)"
+  url = "https://overdare-org.atlassian.net/browse/QA-$1"
+
 [issuetracker "Krafton JIRA Rule MIGALOO"]
   regex = "MIGALOO-(\\d+)"
   url = "https://jira.krafton.com/browse/MIGALOO-$1"
