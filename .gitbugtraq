@@ -1,3 +1,11 @@
+[bugtraq "JIRA-OVDR"]
+	url = https://overdare-org.atlassian.net/browse/%BUGID%
+	logregex = (OVDR-\\d+)
+
+[bugtraq "JIRA-QA"]
+	url = https://overdare-org.atlassian.net/browse/%BUGID%
+	logregex = (QA-\\d+)
+
 [bugtraq "JIRA-MIGALOO"]
 	url = https://jira.krafton.com/browse/%BUGID%
 	logregex = (MIGALOO-\\d+)
