@@ -12,7 +12,7 @@
 
 [issuetracker "OVERDARE JIRA Rule DEVOPS"]
   regex = "DEVOPS-(\\d+)"
-  url = "https://jira.krafton.com/browse/DEVOPS-$1"
+  url = "https://overdare-org.atlassian.net/browse/DEVOPS-$1"
 
 [issuetracker "Krafton JIRA Rule MIGALOO"]
   regex = "MIGALOO-(\\d+)"
