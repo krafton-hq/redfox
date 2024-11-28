@@ -10,10 +10,6 @@
   regex = "QA-(\\d+)"
   url = "https://overdare-org.atlassian.net/browse/QA-$1"
 
-[issuetracker "OVERDARE JIRA Rule DEVOPS"]
-  regex = "DEVOPS-(\\d+)"
-  url = "https://overdare-org.atlassian.net/browse/DEVOPS-$1"
-
 [issuetracker "Krafton JIRA Rule MIGALOO"]
   regex = "MIGALOO-(\\d+)"
   url = "https://jira.krafton.com/browse/MIGALOO-$1"
