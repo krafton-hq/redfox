@@ -6,6 +6,10 @@
 	url = https://overdare-org.atlassian.net/browse/%BUGID%
 	logregex = (QA-\\d+)
 
+[bugtraq "JIRA-DEVOPS"]
+	url = https://overdare-org.atlassian.net/browse/%BUGID%
+	logregex = (DEVOPS-\\d+)
+
 [bugtraq "JIRA-MIGALOO"]
 	url = https://jira.krafton.com/browse/%BUGID%
 	logregex = (MIGALOO-\\d+)
